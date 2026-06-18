@@ -18,6 +18,18 @@ Joriy versiyada audio topshiriqlari mavjud emas. O‘yin 7 ta ketma-ket bo‘lim
 
 Javoblar har savolda avtomatik aralashtiriladi. To‘g‘ri va xato javoblar uchun nutqsiz qisqa sound effect ishlatiladi.
 
+## 3-bosqich
+
+15–17-slaydlar asosida 72 ta topshiriq:
+
+- tashdidning sukunli + harakatli tarkibi;
+- bir xil ikki harfni tashdidli shaklga birlashtirish;
+- fatha + Alif = `aa`, kasra + Ya = `ii`, damma + Vov = `uu`;
+- hamzaning Alif, Vov, Ya kursisi va mustaqil maskanlari;
+- tashdid va madd bilan ritmli o‘qish;
+- `بَابٌ`, `اَبٌ`, `بَيْتٌ` yangi so‘zlari;
+- yakuniy quvvat sinovi.
+
 ## Ishga tushirish
 
 Fayllarni oddiy lokal server orqali oching:

@@ -3,6 +3,7 @@ const progressWrap = document.querySelector("#progressWrap");
 const progressBar = document.querySelector("#progressBar");
 const progressLabel = document.querySelector("#progressLabel");
 const scoreLabel = document.querySelector("#scoreLabel");
+const stageLabel = document.querySelector("#stageLabel");
 const homeButton = document.querySelector("#homeButton");
 const effectButton = document.querySelector("#effectButton");
 const toast = document.querySelector("#toast");
@@ -23,6 +24,8 @@ const totalSteps = 9;
 const totalActivities = 51;
 const stage2Sections = 9;
 const stage2Activities = 86;
+const stage3Sections = 8;
+const stage3Activities = 72;
 const arabicLetters = ["ا","ب","ت","ث","ج","ح","خ","د","ذ","ر","ز","س","ش","ص","ض","ط","ظ","ع","غ","ف","ق","ك","ل","م","ن","و","ه","ي"];
 
 function shuffle(items) {
@@ -67,13 +70,19 @@ function playEffect(type) {
 }
 
 function updateChrome() {
-  const active = state.mode === "stage2" || (state.step > 0 && state.step < totalSteps);
+  const active = state.mode === "stage2" || state.mode === "stage3" || (state.step > 0 && state.step < totalSteps);
   progressWrap.classList.toggle("hidden", !active);
   homeButton.classList.toggle("hidden", state.mode === "stage1" && state.step === 0);
   if (state.mode === "stage2") {
+    stageLabel.textContent = "Fonetika · 2-bosqich";
     progressLabel.textContent = `${Math.min(state.step + 1, stage2Sections)} / ${stage2Sections} BO‘LIM · ${stage2Activities} TOPSHIRIQ`;
     progressBar.style.width = `${Math.min(100, ((state.step + 1) / stage2Sections) * 100)}%`;
+  } else if (state.mode === "stage3") {
+    stageLabel.textContent = "Fonetika · 3-bosqich";
+    progressLabel.textContent = `${Math.min(state.step + 1, stage3Sections)} / ${stage3Sections} BO‘LIM · ${stage3Activities} TOPSHIRIQ`;
+    progressBar.style.width = `${Math.min(100, ((state.step + 1) / stage3Sections) * 100)}%`;
   } else {
+    stageLabel.textContent = "Fonetika · 1-bosqich";
     progressLabel.textContent = `${Math.min(state.step, totalSteps - 2)} / ${totalSteps - 2} BO‘LIM · ${totalActivities} TOPSHIRIQ`;
     progressBar.style.width = `${Math.max(0, ((state.step - 1) / (totalSteps - 2)) * 100)}%`;
   }
@@ -136,6 +145,17 @@ function goHome() {
   renderStep();
 }
 
+function resetProgress(mode) {
+  state.mode = mode;
+  state.step = 0;
+  state.score = 0;
+  state.correct = 0;
+  state.attempts = 0;
+  state.streak = 0;
+  state.mistakes = {};
+  state.completed.clear();
+}
+
 function bindNext(id = "nextButton") {
   document.querySelector(`#${id}`)?.addEventListener("click", next);
 }
@@ -150,6 +170,7 @@ function heroScreen() {
         <div class="button-row">
           <button id="startButton" class="primary-button" type="button">Sayohatni boshlash</button>
           <button id="stage2Button" class="secondary-button" type="button">2-bosqich: Alif · Vov · Ya · Ba</button>
+          <button id="stage3Button" class="secondary-button" type="button">3-bosqich: Tashdid · Madd · Hamza</button>
           <button id="aboutButton" class="secondary-button" type="button">Nimalarni o‘rganaman?</button>
         </div>
       </div>
@@ -164,15 +185,12 @@ function heroScreen() {
 
   document.querySelector("#startButton").addEventListener("click", next);
   document.querySelector("#stage2Button").addEventListener("click", () => {
-    state.mode = "stage2";
-    state.step = 0;
-    state.score = 0;
-    state.correct = 0;
-    state.attempts = 0;
-    state.streak = 0;
-    state.mistakes = {};
-    state.completed.clear();
+    resetProgress("stage2");
     renderStage2();
+  });
+  document.querySelector("#stage3Button").addEventListener("click", () => {
+    resetProgress("stage3");
+    renderStage3();
   });
   document.querySelector("#aboutButton").addEventListener("click", () => {
     showToast("Yozuv yo‘nalishi, 28 harf, harakatlar, sukun va tanvin.");
@@ -700,7 +718,7 @@ function runQuestionDeck(config) {
             index += 1;
             if (index >= deck.length) {
               state.step += 1;
-              renderStage2();
+              renderActiveMode();
             } else {
               screen.querySelector(".screen-content").innerHTML = body();
               bind();
@@ -715,6 +733,16 @@ function runQuestionDeck(config) {
     });
   };
   bind();
+}
+
+function renderActiveMode() {
+  if (state.mode === "stage3") {
+    renderStage3();
+  } else if (state.mode === "stage2") {
+    renderStage2();
+  } else {
+    renderStep();
+  }
 }
 
 function stage2IntroScreen() {
@@ -1117,6 +1145,260 @@ function renderStage2() {
   screens[Math.min(state.step, screens.length - 1)]();
 }
 
+function stage3IntroScreen() {
+  render(`
+    <div class="stage3-hero">
+      <div class="stage3-reactor" aria-hidden="true">
+        <div class="reactor-ring ring-a"></div>
+        <div class="reactor-ring ring-b"></div>
+        <div class="reactor-symbol shadda-symbol">ّ</div>
+        <div class="reactor-symbol madd-symbol">آ</div>
+        <div class="reactor-symbol hamza-symbol">ء</div>
+        <div class="reactor-core">3</div>
+      </div>
+      <div>
+        <p class="eyebrow">3-game · 15–17-slaydlar</p>
+        <h1>Tovush quvvati laboratoriyasi</h1>
+        <p class="lead">Tashdid harfni ikki marta kuchaytiradi, madd tovushni cho‘zadi, hamza esa to‘rt xil maskanda ko‘rinadi. So‘ng ularni o‘qish maydonida birlashtiramiz.</p>
+        <div class="skill-pills">
+          <span>Tashdid sintezi</span><span>aa · ii · uu</span><span>Hamza maskani</span><span>Ritmli o‘qish</span>
+        </div>
+        <button id="stage3Start" class="primary-button" type="button">Laboratoriyani ishga tushirish</button>
+      </div>
+    </div>
+  `);
+  document.querySelector("#stage3Start").addEventListener("click", () => {
+    state.step = 1;
+    renderStage3();
+  });
+}
+
+function tashdidRulesScreen() {
+  const questions = [
+    { question: "Tashdid belgisi qaysi?", options: ["ّ", "ْ", "ً", "ٰ"], answer: "ّ", feedback: "ّ — tashdid belgisi." },
+    { question: "Tashdid harfning qayeriga qo‘yiladi?", options: ["Ustiga", "Pastiga", "Yoniga"], answer: "Ustiga", feedback: "Tashdid harf ustiga qo‘yiladi." },
+    { question: "Tashdid nimani bildiradi?", options: ["Harf ikki marta kelganini", "Harf cho‘zilishini", "Harf tushib qolishini"], answer: "Harf ikki marta kelganini", feedback: "Tashdid bir xil harf ketma-ket ikki marta kelganini bildiradi." },
+    { question: "Tashdid tarkibidagi birinchi harf qanday bo‘ladi?", options: ["Sukunli", "Fathali", "Tanvinli"], answer: "Sukunli", feedback: "Birinchi harf sukunli bo‘ladi." },
+    { question: "Tashdid tarkibidagi ikkinchi harf qanday bo‘ladi?", options: ["Harakatli", "Harakatsiz", "Faqat tanvinli"], answer: "Harakatli", feedback: "Ikkinchi harf fatha, kasra yoki damma bilan keladi." },
+    { question: "وْ + وَ birikmasining ixcham ko‘rinishi qaysi?", options: ["وَّ", "وَ", "وْ"], answer: "وَّ", feedback: "وْ + وَ = وَّ." },
+    { question: "يْ + يَ birikmasining ixcham ko‘rinishi qaysi?", options: ["يَّ", "يَ", "يْ"], answer: "يَّ", feedback: "يْ + يَ = يَّ." },
+    { question: "بْ + بُ qanday yoziladi?", options: ["بُّ", "بُ", "بْ"], answer: "بُّ", feedback: "Birinchi Ba sukunli, ikkinchisi dammali: بُّ." },
+    { question: "Tashdidli harfni o‘qishda tovush...", options: ["Kuchayib ikki urinishda chiqadi", "Butunlay tushib qoladi", "Faqat cho‘ziladi"], answer: "Kuchayib ikki urinishda chiqadi", feedback: "Tashdid harfni ikki bosqichda: yopilish va ochilish bilan kuchaytiradi." },
+    { question: "Qaysi shaklda tashdid bor?", options: ["بَّ", "بَ", "بْ"], answer: "بَّ", feedback: "بَّ shaklida Ba ustida tashdid va fatha bor." },
+  ];
+  runQuestionDeck({
+    id: "shadda-rule",
+    eyebrow: "1-laboratoriya · Tashdid anatomiyasi",
+    questions,
+    visual: (q, index) => `
+      <div class="shadda-anatomy">
+        <div class="pulse-letter">${["بَّ","وِّ","يُّ"][index % 3]}</div>
+        <div class="double-beat"><i></i><i></i></div>
+        <p><span>1</span> sukunli yopilish <b>+</b> <span>2</span> harakatli ochilish</p>
+      </div>
+    `,
+  });
+}
+
+function tashdidFusionScreen() {
+  const questions = [
+    { question: "وْ + وَ ni birlashtiring.", options: ["وَّ", "وِّ", "وُّ"], answer: "وَّ", feedback: "Fathali ikkinchi Vov sabab natija وَّ." },
+    { question: "وْ + وِ ni birlashtiring.", options: ["وَّ", "وِّ", "وُّ"], answer: "وِّ", feedback: "Kasrali ikkinchi Vov sabab natija وِّ." },
+    { question: "وْ + وُ ni birlashtiring.", options: ["وَّ", "وِّ", "وُّ"], answer: "وُّ", feedback: "Dammali ikkinchi Vov sabab natija وُّ." },
+    { question: "يْ + يَ ni birlashtiring.", options: ["يَّ", "يِّ", "يُّ"], answer: "يَّ", feedback: "Fathali ikkinchi Ya sabab natija يَّ." },
+    { question: "يْ + يِ ni birlashtiring.", options: ["يَّ", "يِّ", "يُّ"], answer: "يِّ", feedback: "Kasrali ikkinchi Ya sabab natija يِّ." },
+    { question: "يْ + يُ ni birlashtiring.", options: ["يَّ", "يِّ", "يُّ"], answer: "يُّ", feedback: "Dammali ikkinchi Ya sabab natija يُّ." },
+    { question: "بْ + بَ ni birlashtiring.", options: ["بَّ", "بِّ", "بُّ"], answer: "بَّ", feedback: "بْ + بَ = بَّ." },
+    { question: "بْ + بِ ni birlashtiring.", options: ["بَّ", "بِّ", "بُّ"], answer: "بِّ", feedback: "بْ + بِ = بِّ." },
+  ];
+  runQuestionDeck({
+    id: "shadda-fusion",
+    eyebrow: "2-laboratoriya · Tashdid pressi",
+    questions,
+    visual: (q, index) => {
+      const pairs = [["وْ","وَ"],["وْ","وِ"],["وْ","وُ"],["يْ","يَ"],["يْ","يِ"],["يْ","يُ"],["بْ","بَ"],["بْ","بِ"]];
+      return `
+        <div class="fusion-press">
+          <div class="fusion-piece">${pairs[index][0]}</div>
+          <div class="press-core"><span>ّ</span><i></i></div>
+          <div class="fusion-piece">${pairs[index][1]}</div>
+          <div class="fusion-energy"></div>
+        </div>
+      `;
+    },
+  });
+}
+
+function maddLabScreen() {
+  const questions = [
+    { question: "Cho‘ziq unli nima qiladi?", options: ["Tovushni cho‘zadi", "Harfni ikki marta ayttiradi", "Tovushni o‘chiradi"], answer: "Tovushni cho‘zadi", feedback: "Madd unli tovushni cho‘zib talaffuz qilishga xizmat qiladi." },
+    { question: "Fatha bilan mos cho‘ziq harf qaysi?", options: ["Alif", "Vov", "Ya"], answer: "Alif", feedback: "Fatha + Alif = aa." },
+    { question: "Kasra bilan mos cho‘ziq harf qaysi?", options: ["Ya", "Alif", "Vov"], answer: "Ya", feedback: "Kasra + Ya = ii." },
+    { question: "Damma bilan mos cho‘ziq harf qaysi?", options: ["Vov", "Ya", "Alif"], answer: "Vov", feedback: "Damma + Vov = uu." },
+    { question: "بَ + ا qanday o‘qiladi?", options: ["baa", "bii", "buu"], answer: "baa", feedback: "بَ + ا = بَا, ya’ni baa." },
+    { question: "بِ + ي qanday o‘qiladi?", options: ["bii", "baa", "buu"], answer: "bii", feedback: "بِ + ي = بِي, ya’ni bii." },
+    { question: "بُ + و qanday o‘qiladi?", options: ["buu", "bii", "baa"], answer: "buu", feedback: "بُ + و = بُو, ya’ni buu." },
+    { question: "Qaysi birikma cho‘ziq “aa” beradi?", options: ["بَا", "بِي", "بُو"], answer: "بَا", feedback: "بَا — baa." },
+    { question: "Qaysi birikma cho‘ziq “ii” beradi?", options: ["بِي", "بَا", "بُو"], answer: "بِي", feedback: "بِي — bii." },
+    { question: "Qaysi birikma cho‘ziq “uu” beradi?", options: ["بُو", "بِي", "بَا"], answer: "بُو", feedback: "بُو — buu." },
+    { question: "Fatha + Vov mos madd juftligimi?", options: ["Yo‘q", "Ha", "Faqat tashdid bilan"], answer: "Yo‘q", feedback: "Fatha uchun mos cho‘ziq harf Alif." },
+    { question: "Kasra + Alif mos madd juftligimi?", options: ["Yo‘q", "Ha", "Faqat tanvin bilan"], answer: "Yo‘q", feedback: "Kasra uchun mos cho‘ziq harf Ya." },
+    { question: "Damma + Ya mos madd juftligimi?", options: ["Yo‘q", "Ha", "Faqat sukun bilan"], answer: "Yo‘q", feedback: "Damma uchun mos cho‘ziq harf Vov." },
+    { question: "Cho‘ziq unli harfi qachon madd vazifasini bajaradi?", options: ["Oldingi qisqa harakat unga mos bo‘lsa", "Har doim", "Faqat so‘z oxirida"], answer: "Oldingi qisqa harakat unga mos bo‘lsa", feedback: "Madd harfi oldingi harakat bilan mos kelgandagina cho‘ziq unli bo‘ladi." },
+  ];
+  runQuestionDeck({
+    id: "madd",
+    eyebrow: "3-laboratoriya · Madd energiya yo‘li",
+    questions,
+    visual: (q, index) => `
+      <div class="madd-tunnel">
+        <div class="short-pulse">${["بَ","بِ","بُ"][index % 3]}</div>
+        <div class="madd-wave"><i></i><i></i><i></i></div>
+        <div class="long-pulse">${["بَا","بِي","بُو"][index % 3]}</div>
+        <div class="duration-scale"><span>qisqa</span><b></b><span>cho‘ziq</span></div>
+      </div>
+    `,
+  });
+}
+
+function hamzaLabScreen() {
+  const questions = [
+    { question: "Hamza belgisi qaysi?", options: ["ء", "ع", "ا", "ّ"], answer: "ء", feedback: "ء — hamza belgisi." },
+    { question: "Hamza belgisi qaysi harfning bosh qismidan olingan?", options: ["ع", "ا", "و"], answer: "ع", feedback: "Hamza belgisi ع harfining bosh qismidan olingan." },
+    { question: "Hamza mustaqil shaklda o‘zgaradimi?", options: ["Yo‘q, bir xil yoziladi", "Ha, to‘rt shaklga ulanadi", "Faqat oxirida o‘zgaradi"], answer: "Yo‘q, bir xil yoziladi", feedback: "Mustaqil hamza bir xil shaklda yoziladi." },
+    { question: "Hamza boshqa harfga birikadimi?", options: ["Yo‘q", "Ha", "Faqat Yaga"], answer: "Yo‘q", feedback: "Hamza belgisi o‘zi hech bir harfga birikmaydi." },
+    { question: "Hamza imloda nechta asosiy ko‘rinishda uchraydi?", options: ["To‘rt", "Ikki", "Olti"], answer: "To‘rt", feedback: "Alif, Vov, Ya kursisi va mustaqil shakl — to‘rt ko‘rinish." },
+    { question: "Kasrali boshlang‘ich hamza Alifning qayerida yoziladi?", options: ["Ostida", "Ustida", "Yonida"], answer: "Ostida", feedback: "Kasrali hamza Alif ostida yoziladi: إِ." },
+    { question: "Fathali hamza Alif bilan qanday ko‘rinadi?", options: ["أَ", "إِ", "ؤَ"], answer: "أَ", feedback: "Fathali hamza Alif ustida: أَ." },
+    { question: "Dammali hamza Alif bilan qanday ko‘rinadi?", options: ["أُ", "إُ", "ئُ"], answer: "أُ", feedback: "Dammali hamza Alif ustida yoziladi: أُ." },
+    { question: "Vov kursisidagi hamza qaysi?", options: ["ؤ", "ئ", "أ"], answer: "ؤ", feedback: "ؤ — Vov ustidagi hamza." },
+    { question: "Ya kursisidagi hamza qaysi?", options: ["ئ", "ؤ", "إ"], answer: "ئ", feedback: "ئ — Ya kursisidagi hamza." },
+    { question: "Mustaqil hamza qaysi?", options: ["ء", "أ", "ؤ"], answer: "ء", feedback: "ء — mustaqil hamza." },
+    { question: "Qaysi shaklda hamza Alif ostida?", options: ["إ", "أ", "ؤ"], answer: "إ", feedback: "إ shaklida hamza Alif ostida." },
+    { question: "Qaysi qatorda hamzaning to‘rt maskani berilgan?", options: ["أ · ؤ · ئ · ء", "ا · و · ي · ب", "َ · ِ · ُ · ْ"], answer: "أ · ؤ · ئ · ء", feedback: "Hamzaning maskanlari: Alif, Vov, Ya kursisi va mustaqil." },
+    { question: "Hamza belgisini muomalaga kiritgan olim kim?", options: ["Xalil ibn Ahmad Farohidiy", "Ibn Sino", "Al-Xorazmiy"], answer: "Xalil ibn Ahmad Farohidiy", feedback: "Qo‘llanmada hamza belgisi Xalil ibn Ahmad Farohidiy tomonidan joriy qilingani aytiladi." },
+  ];
+  runQuestionDeck({
+    id: "hamza",
+    eyebrow: "4-laboratoriya · Hamza maskanlari",
+    questions,
+    visual: (q, index) => `
+      <div class="hamza-orbit">
+        <div class="hamza-seat alif-seat">أ</div>
+        <div class="hamza-seat waw-seat">ؤ</div>
+        <div class="hamza-seat ya-seat">ئ</div>
+        <div class="hamza-seat solo-seat">ء</div>
+        <div class="hamza-core">${["ء","إ","ؤ","ئ"][index % 4]}</div>
+        <div class="seat-path"></div>
+      </div>
+    `,
+  });
+}
+
+function stage3ReadingScreen() {
+  const questions = [
+    { question: "وَا qanday o‘qiladi?", options: ["waa", "wii", "wuu"], answer: "waa", feedback: "وَا — waa." },
+    { question: "وِي qanday o‘qiladi?", options: ["wii", "waa", "wuu"], answer: "wii", feedback: "وِي — wii." },
+    { question: "وُو qanday o‘qiladi?", options: ["wuu", "wii", "waa"], answer: "wuu", feedback: "وُو — wuu." },
+    { question: "يَا qanday o‘qiladi?", options: ["yaa", "yii", "yuu"], answer: "yaa", feedback: "يَا — yaa." },
+    { question: "يِي qanday o‘qiladi?", options: ["yii", "yaa", "yuu"], answer: "yii", feedback: "يِي — yii." },
+    { question: "يُو qanday o‘qiladi?", options: ["yuu", "yii", "yaa"], answer: "yuu", feedback: "يُو — yuu." },
+    { question: "اَوَّ qanday o‘qiladi?", options: ["awwa", "awi", "awu"], answer: "awwa", feedback: "اَوَّ — awwa." },
+    { question: "اَوِّ qanday o‘qiladi?", options: ["awwi", "awwa", "awwu"], answer: "awwi", feedback: "اَوِّ — awwi." },
+    { question: "اَوُّ qanday o‘qiladi?", options: ["awwu", "awwi", "awwa"], answer: "awwu", feedback: "اَوُّ — awwu." },
+    { question: "اَيَّ qanday o‘qiladi?", options: ["ayya", "ayyi", "ayyu"], answer: "ayya", feedback: "اَيَّ — ayya." },
+    { question: "اَيِّ qanday o‘qiladi?", options: ["ayyi", "ayya", "ayyu"], answer: "ayyi", feedback: "اَيِّ — ayyi." },
+    { question: "اَيُّ qanday o‘qiladi?", options: ["ayyu", "ayyi", "ayya"], answer: "ayyu", feedback: "اَيُّ — ayyu." },
+    { question: "بَا qanday o‘qiladi?", options: ["baa", "bii", "buu"], answer: "baa", feedback: "بَا — baa." },
+    { question: "بِي qanday o‘qiladi?", options: ["bii", "baa", "buu"], answer: "bii", feedback: "بِي — bii." },
+    { question: "بُو qanday o‘qiladi?", options: ["buu", "bii", "baa"], answer: "buu", feedback: "بُو — buu." },
+    { question: "بَابٌ so‘zining ma’nosi nima?", options: ["Eshik", "Ota", "Uy"], answer: "Eshik", feedback: "بَابٌ — eshik." },
+    { question: "اَبٌ so‘zining ma’nosi nima?", options: ["Ota", "Eshik", "Uy"], answer: "Ota", feedback: "اَبٌ — ota." },
+    { question: "بَيْتٌ so‘zining ma’nosi nima?", options: ["Uy", "Ota", "Eshik"], answer: "Uy", feedback: "بَيْتٌ — uy. Bu 17-slaydda yangi so‘z sifatida berilgan." },
+  ];
+  runQuestionDeck({
+    id: "read3",
+    eyebrow: "5-laboratoriya · Ritmli o‘qish",
+    questions,
+    visual: (q, index) => `
+      <div class="rhythm-reader">
+        <div class="reading-token arabic">${q.question.split(" ")[0]}</div>
+        <div class="rhythm-track">
+          ${Array.from({ length: index % 3 === 0 ? 3 : 2 }, (_, i) => `<i style="--delay:${i * .18}s"></i>`).join("")}
+        </div>
+        <p>${index < 6 ? "cho‘ziq unli" : index < 12 ? "tashdid ritmi" : index < 15 ? "madd" : "yangi so‘z"}</p>
+      </div>
+    `,
+  });
+}
+
+function stage3MasteryScreen() {
+  const questions = [
+    { question: "Tashdidning ichki formulasi qaysi?", options: ["Sukunli harf + harakatli harf", "Fatha + Alif", "Kasra + Ya"], answer: "Sukunli harf + harakatli harf", feedback: "Tashdid: birinchi harf sukunli, ikkinchisi harakatli." },
+    { question: "بِّ qaysi ikki qismdan tuzilgan?", options: ["بْ + بِ", "بِ + بْ", "بَ + ا"], answer: "بْ + بِ", feedback: "بْ + بِ = بِّ." },
+    { question: "Cho‘ziq “aa” formulasi qaysi?", options: ["Fatha + Alif", "Kasra + Ya", "Damma + Vov"], answer: "Fatha + Alif", feedback: "Fatha + Alif = aa." },
+    { question: "Cho‘ziq “ii” formulasi qaysi?", options: ["Kasra + Ya", "Fatha + Alif", "Damma + Vov"], answer: "Kasra + Ya", feedback: "Kasra + Ya = ii." },
+    { question: "Cho‘ziq “uu” formulasi qaysi?", options: ["Damma + Vov", "Kasra + Ya", "Fatha + Alif"], answer: "Damma + Vov", feedback: "Damma + Vov = uu." },
+    { question: "Kasrali hamza Alif bilan qayerda turadi?", options: ["Alif ostida", "Alif ustida", "Vov ustida"], answer: "Alif ostida", feedback: "إِ — kasrali hamza Alif ostida." },
+    { question: "Qaysi shakl Ya kursisidagi hamza?", options: ["ئ", "ؤ", "ء"], answer: "ئ", feedback: "ئ — Ya kursisidagi hamza." },
+    { question: "اَيُّ qanday o‘qiladi?", options: ["ayyu", "ayya", "ayyi"], answer: "ayyu", feedback: "اَيُّ — ayyu." },
+  ];
+  runQuestionDeck({
+    id: "mastery3",
+    eyebrow: "6-laboratoriya · Quvvat sinovi",
+    questions,
+    layout: "result-layout",
+    prompt: "Tashdid, madd, hamza va o‘qishni bitta sinovda birlashtiring.",
+  });
+}
+
+function stage3FinalScreen() {
+  const accuracy = state.attempts ? Math.round((state.correct / state.attempts) * 100) : 0;
+  const stars = accuracy >= 90 ? 3 : accuracy >= 75 ? 2 : 1;
+  localStorage.setItem("fonetika-stage-3", JSON.stringify({
+    score: state.score,
+    accuracy,
+    completedAt: new Date().toISOString(),
+  }));
+  render(`
+    <div class="result-layout">
+      <div class="stage3-medal" aria-hidden="true"><span>ّ</span><span>آ</span><span>ء</span></div>
+      <p class="eyebrow" style="justify-content:center">3-bosqich yakuni</p>
+      <h2>Tovush muhandisi darajasi ochildi!</h2>
+      <p class="lead" style="margin-inline:auto">Siz tashdidni qismlarga ajratdingiz, cho‘ziq unlilarni qurdingiz, hamzaning maskanlarini topdingiz va 17-slayd o‘qishlarini bajardingiz.</p>
+      <div class="stars">${"★".repeat(stars)}${"☆".repeat(3 - stars)}</div>
+      <div class="result-stats">
+        <div class="stat-card"><strong>${state.score}</strong><span>Jami ball</span></div>
+        <div class="stat-card"><strong>${accuracy}%</strong><span>Aniqlik</span></div>
+        <div class="stat-card"><strong>${state.completed.size}</strong><span>Ko‘nikma</span></div>
+      </div>
+      <div class="button-row" style="justify-content:center">
+        <button id="stage3Again" class="secondary-button" type="button">Qayta mashq</button>
+        <button id="stage3Menu" class="primary-button" type="button">Bosh menyu</button>
+      </div>
+    </div>
+  `);
+  document.querySelector("#stage3Again").addEventListener("click", () => {
+    resetProgress("stage3");
+    renderStage3();
+  });
+  document.querySelector("#stage3Menu").addEventListener("click", goHome);
+}
+
+function renderStage3() {
+  const screens = [
+    stage3IntroScreen,
+    tashdidRulesScreen,
+    tashdidFusionScreen,
+    maddLabScreen,
+    hamzaLabScreen,
+    stage3ReadingScreen,
+    stage3MasteryScreen,
+    stage3FinalScreen,
+  ];
+  screens[Math.min(state.step, screens.length - 1)]();
+}
+
 function resultScreen() {
   const accuracy = state.attempts ? Math.round((state.correct / state.attempts) * 100) : 0;
   const mastery = Math.max(78, Math.min(100, accuracy));
@@ -1163,6 +1445,10 @@ function resultScreen() {
 }
 
 function renderStep() {
+  if (state.mode === "stage3") {
+    renderStage3();
+    return;
+  }
   if (state.mode === "stage2") {
     renderStage2();
     return;
@@ -1188,8 +1474,12 @@ effectButton.addEventListener("click", () => {
   showToast(state.soundEffects ? "Sound effectlar yoqildi." : "Sound effectlar o‘chirildi.");
 });
 
+const stage3Route = location.hash.match(/^#stage3(?:-(\d+))?$/);
 const stage2Route = location.hash.match(/^#stage2(?:-(\d+))?$/);
-if (stage2Route) {
+if (stage3Route) {
+  state.mode = "stage3";
+  state.step = Math.min(Number(stage3Route[1] || 0), stage3Sections - 1);
+} else if (stage2Route) {
   state.mode = "stage2";
   state.step = Math.min(Number(stage2Route[1] || 0), stage2Sections - 1);
 }
