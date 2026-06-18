@@ -15,13 +15,14 @@ const state = {
 };
 
 const totalSteps = 9;
+const totalActivities = 51;
 const arabicLetters = ["ا","ب","ت","ث","ج","ح","خ","د","ذ","ر","ز","س","ش","ص","ض","ط","ظ","ع","غ","ف","ق","ك","ل","م","ن","و","ه","ي"];
 
 function updateChrome() {
   const active = state.step > 0 && state.step < totalSteps;
   progressWrap.classList.toggle("hidden", !active);
   homeButton.classList.toggle("hidden", state.step === 0);
-  progressLabel.textContent = `${Math.min(state.step, totalSteps - 1)} / ${totalSteps - 1}`;
+  progressLabel.textContent = `${Math.min(state.step, totalSteps - 2)} / ${totalSteps - 2} BO‘LIM · ${totalActivities} TOPSHIRIQ`;
   progressBar.style.width = `${Math.max(0, ((state.step - 1) / (totalSteps - 2)) * 100)}%`;
   scoreLabel.textContent = `${state.score} XP`;
 }

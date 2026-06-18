@@ -2,7 +2,7 @@
 
 Kitobning 4–8-slaydlari asosida yaratilgan mobil-first interaktiv web-game.
 
-Joriy versiyada audio topshiriqlari mavjud emas. O‘yin 46 ta yozma va vizual savol/topshiriqdan tashkil topgan.
+Joriy versiyada audio topshiriqlari mavjud emas. O‘yin 7 ta ketma-ket bo‘limdagi 51 ta yozma va vizual savol/topshiriqdan tashkil topgan.
 
 ## Ishga tushirish
 
