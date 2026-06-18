@@ -1,0 +1,19 @@
+{
+  "name": "Bosqichli Arab Tili Fonetika",
+  "short_name": "Arab Fonetika",
+  "description": "Arab yozuvi, harakatlar va tanvin bo‘yicha interaktiv kirish darsi.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#082f3e",
+  "theme_color": "#082f3e",
+  "lang": "uz",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
