@@ -139,6 +139,10 @@ button:focus-visible {
   white-space: nowrap;
 }
 
+.brand > div {
+  min-width: 0;
+}
+
 .brand small {
   margin-top: 2px;
   color: rgba(255,255,255,.66);
@@ -172,10 +176,23 @@ button:focus-visible {
 .progress-meta {
   display: flex;
   justify-content: space-between;
+  gap: 10px;
   margin-bottom: 7px;
   color: rgba(255,255,255,.78);
   font-size: 12px;
   font-weight: 700;
+}
+
+#progressLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#scoreLabel {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .progress-track {
@@ -309,6 +326,12 @@ h2 {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+.button-row > * {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
 }
 
 .manuscript {
@@ -859,6 +882,10 @@ button.stage-card:hover {
     padding: 25px 20px 30px;
   }
 
+  .progress-meta {
+    font-size: 10px;
+  }
+
   .hero,
   .lesson-layout,
   .symbol-stage {
@@ -875,7 +902,8 @@ button.stage-card:hover {
   }
 
   h1 {
-    font-size: clamp(40px, 13vw, 62px);
+    overflow-wrap: anywhere;
+    font-size: clamp(36px, 11.5vw, 56px);
   }
 
   .fact-grid {

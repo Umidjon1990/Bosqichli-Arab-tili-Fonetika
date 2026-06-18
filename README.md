@@ -4,6 +4,20 @@ Kitobning 4–8-slaydlari asosida yaratilgan mobil-first interaktiv web-game.
 
 Joriy versiyada audio topshiriqlari mavjud emas. O‘yin 7 ta ketma-ket bo‘limdagi 51 ta yozma va vizual savol/topshiriqdan tashkil topgan.
 
+## 2-bosqich
+
+9–14-slaydlar asosida Alif, Vov, Ya va Ba uchun 86 ta topshiriq:
+
+- maxraj xaritasi;
+- ikki va to‘rt shaklli harflar;
+- keyingi harfga ulanish/ulanmaslik;
+- barmoq yoki sichqoncha bilan harfni izidan yozish;
+- harakat va tanvin bilan o‘qish;
+- sukunli bo‘g‘inlar;
+- yakuniy usta sinovi.
+
+Javoblar har savolda avtomatik aralashtiriladi. To‘g‘ri va xato javoblar uchun nutqsiz qisqa sound effect ishlatiladi.
+
 ## Ishga tushirish
 
 Fayllarni oddiy lokal server orqali oching:
