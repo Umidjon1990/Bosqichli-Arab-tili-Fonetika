@@ -188,8 +188,8 @@ Faqat 4–8-slaydlarda o‘tilgan tushunchalar aralashtiriladi.
 14. **Yuqoridami, pastdami?**
     - Belgini neytral harfning to‘g‘ri joyiga drag-and-drop qilish.
 
-15. **Audio detektiv**
-    - Diktor `a`, `i`, `u` tovushlaridan birini aytadi.
+15. **Tovush yozuvini top**
+    - `a`, `i`, `u` yozma tovushlaridan biri ko‘rsatiladi.
     - O‘quvchi mos harakatni tanlaydi.
 
 16. **Harakat konstruktori**
@@ -222,8 +222,8 @@ Faqat 4–8-slaydlarda o‘tilgan tushunchalar aralashtiriladi.
 22. **Tanvin uchligi**
     - `◌ً`, `◌ٍ`, `◌ٌ` ni “ikki fatha”, “ikki kasra”, “ikki damma” bilan moslashtirish.
 
-23. **AN–IN–UN audio matching**
-    - Audio eshitiladi.
+23. **AN–IN–UN matching**
+    - `an`, `in` yoki `un` yozuvi ko‘rsatiladi.
     - O‘quvchi mos tanvin belgisini tanlaydi.
 
 24. **Joylashuv ustasi**
@@ -234,8 +234,8 @@ Faqat 4–8-slaydlarda o‘tilgan tushunchalar aralashtiriladi.
     - Boshi, o‘rtasi va oxiri ko‘rsatilgan uchta joy.
     - Tanvin “so‘z oxiri”ga olib boriladi.
 
-26. **N tovushini eshit**
-    - `a/an`, `i/in`, `u/un` audio juftliklari.
+26. **N belgisini farqla**
+    - `a/an`, `i/in`, `u/un` yozma juftliklari.
     - O‘quvchi tanvinli variantni aniqlaydi.
 
 27. **Oddiy harakatmi, tanvinmi?**
@@ -245,7 +245,7 @@ Faqat 4–8-slaydlarda o‘tilgan tushunchalar aralashtiriladi.
     - “in” tovushini yarat:
     - ikki kasra tanlash;
     - pastga qo‘yish;
-    - audio orqali tekshirish.
+    - yozma javob orqali tekshirish.
 
 ### E. Yakuniy aralash sinov
 
@@ -284,7 +284,7 @@ O‘quvchi bir o‘tirishda barchasini bajarmaydi. Tizim har urinishda savollar 
 ### 1-daraja — Ko‘rsatma bilan
 
 - to‘g‘ri joy yengil yoritiladi;
-- audio va animatsiya yordam beradi;
+- vizual ko‘rsatma va animatsiya yordam beradi;
 - xato javob darhol tushuntiriladi.
 
 ### 2-daraja — Mustaqil tanlash
@@ -368,7 +368,7 @@ Harakatlar rang bilan ajratilishi mumkin, lekin o‘quvchi faqat rangga bog‘la
 - yuqorida bosqich va progress;
 - markazda bitta asosiy topshiriq;
 - pastda 2–4 ta javob yoki drag zonasi;
-- chap yoki o‘ng chetda yordam va audio tugmasi;
+- chap yoki o‘ng chetda yordam tugmasi;
 - fon savoldan vizual jihatdan past kontrastda.
 
 ## Animatsiya standarti
@@ -376,20 +376,15 @@ Harakatlar rang bilan ajratilishi mumkin, lekin o‘quvchi faqat rangga bog‘la
 1. Ekran o‘tishi: 350–500 ms, yumshoq kamera yoki qog‘oz qatlamining siljishi.
 2. Harakat paydo bo‘lishi: siyoh chizig‘i 250–400 ms ichida chiziladi.
 3. Drag-and-drop: obyekt barmoqni aniq kuzatadi; to‘g‘ri joyda magnit kabi yumshoq o‘rnashadi.
-4. To‘g‘ri javob: 700–1000 ms dan oshmaydigan nafis nur va qisqa audio.
+4. To‘g‘ri javob: 700–1000 ms dan oshmaydigan nafis nurli mikroanimatsiya.
 5. Xato javob: keskin titrash yo‘q; obyekt yengil orqaga qaytadi va to‘g‘ri zona ko‘rsatiladi.
-6. Audio va belgi sinxronligi: tovush aytilganda belgi 5–8% kattalashib nafas olgandek harakat qiladi.
+6. Belgi animatsiyasi: muhim belgi ko‘rsatilganda 5–8% kattalashib, diqqatni o‘ziga jalb qiladi.
 7. Progress: markaziy qo‘lyozma har to‘g‘ri blokdan keyin bir qatlam ochadi.
 8. “Reduced motion” rejimi: harakat sezgirligi bor foydalanuvchilar uchun kamera va zarracha effektlari o‘chiriladi.
 
-## Audio standarti
+## Audio bo‘yicha joriy qaror
 
-- professional arab tili fonetikasi mutaxassisi ovozi;
-- `a`, `i`, `u`, `an`, `in`, `un` alohida studiya yozuvi;
-- o‘zbekcha ko‘rsatmalar uchun iliq, ravshan diktor;
-- fon musiqasi juda past va topshiriq paytida avtomatik pasayadi;
-- fonetik audio chalinayotganda musiqa deyarli eshitilmaydi;
-- har bir audio qayta eshitilishi mumkin.
+Brauzerning avtomatik ovozi arab fonetikasini noto‘g‘ri talaffuz qilishi mumkinligi sababli ushbu bosqichda audio topshiriqlar ishlatilmaydi. Barcha savollar yozma va vizual shaklda beriladi. Kelajakda faqat professional fonetika mutaxassisi yozgan studiya audiosi tayyor bo‘lsa, audio moduli alohida qo‘shiladi.
 
 ## Birinchi ishlab chiqiladigan vertikal prototip
 
@@ -400,7 +395,7 @@ To‘liq bosqichdan oldin quyidagi 8 ekran mukammal ishlab chiqiladi:
 3. O‘ngdan chapga yozish mini-game’i
 4. 28 harf panoramasi
 5. Harakatni joylashtirish game’i
-6. Audio–harakat matching
+6. Harakat–yozma tovush matching
 7. Tanvin konstruktori
 8. Yakuniy natija ekrani
 

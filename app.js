@@ -4,7 +4,6 @@ const progressBar = document.querySelector("#progressBar");
 const progressLabel = document.querySelector("#progressLabel");
 const scoreLabel = document.querySelector("#scoreLabel");
 const homeButton = document.querySelector("#homeButton");
-const soundButton = document.querySelector("#soundButton");
 const toast = document.querySelector("#toast");
 
 const state = {
@@ -12,11 +11,10 @@ const state = {
   score: 0,
   correct: 0,
   attempts: 0,
-  sound: true,
   completed: new Set(),
 };
 
-const totalSteps = 8;
+const totalSteps = 9;
 const arabicLetters = ["ا","ب","ت","ث","ج","ح","خ","د","ذ","ر","ز","س","ش","ص","ض","ط","ظ","ع","غ","ف","ق","ك","ل","م","ن","و","ه","ي"];
 
 function updateChrome() {
@@ -54,16 +52,6 @@ function reward(id, points = 10) {
 function miss(message) {
   state.attempts += 1;
   showToast(message);
-}
-
-function speak(text, lang = "uz-UZ") {
-  if (!state.sound || !("speechSynthesis" in window)) return;
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = lang;
-  utterance.rate = 0.78;
-  utterance.pitch = 1;
-  window.speechSynthesis.speak(utterance);
 }
 
 function next() {
@@ -162,51 +150,101 @@ function directionScreen() {
 }
 
 function factsScreen() {
-  const facts = [
-    ["28 ta harf", "Arab alifbosidagi harflar soni", true],
-    ["O‘ngdan chapga", "Arab yozuvining yo‘nalishi", true],
-    ["BMT rasmiy tili", "Arab tili BMT rasmiy tillaridan biri", true],
-    ["Katta-kichik harf", "Arab yozuvida alohida katta va kichik harflar bor", false],
+  const questions = [
+    {
+      question: "Arab alifbosi nechta harfdan iborat?",
+      options: ["26 ta", "28 ta", "30 ta", "32 ta"],
+      answer: "28 ta",
+      feedback: "Arab alifbosi 28 ta harfdan iborat."
+    },
+    {
+      question: "Arab yozuvi qaysi yo‘nalishda yoziladi?",
+      options: ["Chapdan o‘ngga", "O‘ngdan chapga", "Yuqoridan pastga", "Pastdan yuqoriga"],
+      answer: "O‘ngdan chapga",
+      feedback: "Arab yozuvi o‘ng tomondan boshlanib chapga davom etadi."
+    },
+    {
+      question: "Arab tilida katta va kichik harflar...",
+      options: ["farqlanadi", "faqat so‘z boshida farqlanadi", "farqlanmaydi", "faqat ismlarda farqlanadi"],
+      answer: "farqlanmaydi",
+      feedback: "Arab yozuvida katta-kichik harf tizimi mavjud emas."
+    },
+    {
+      question: "Arab tili qaysi tillar oilasiga mansub?",
+      options: ["Turkiy", "Somiy", "Roman", "Slavyan"],
+      answer: "Somiy",
+      feedback: "Arab tili somiy tillar oilasiga mansub."
+    },
+    {
+      question: "Arab tili BMTning rasmiy tillaridan birimi?",
+      options: ["Ha", "Yo‘q", "Faqat tarixda bo‘lgan", "Faqat ayrim davlatlarda"],
+      answer: "Ha",
+      feedback: "Arab tili BMTning oltita rasmiy tilidan biridir."
+    },
+    {
+      question: "Rasmiy nutq va ilmiy matnlarda asosan qaysi shakl ishlatiladi?",
+      options: ["Adabiy arab tili", "Mahalliy lahja", "Faqat og‘zaki til", "Aralash yozuv"],
+      answer: "Adabiy arab tili",
+      feedback: "Adabiy arab tili rasmiy nutq va ilmiy matnlarda ishlatiladi."
+    },
+    {
+      question: "Mahalliy so‘zlashuv shakllari nima deb ataladi?",
+      options: ["Harakatlar", "Tanvinlar", "Lahjalar", "Maxrajlar"],
+      answer: "Lahjalar",
+      feedback: "Har bir hududdagi mahalliy so‘zlashuv shakli lahja deyiladi."
+    },
+    {
+      question: "Qisqa unlilar arab yozuvida qanday ifodalanadi?",
+      options: ["Katta harflar bilan", "Harakat belgilari bilan", "Raqamlar bilan", "Nuqtalar soni bilan"],
+      answer: "Harakat belgilari bilan",
+      feedback: "Qisqa unlilar fatha, kasra va damma kabi harakatlar bilan ifodalanadi."
+    }
   ];
+  let index = 0;
 
-  render(`
-    <div>
-      <p class="eyebrow">2-xona · Arab tili dunyosi</p>
-      <h2>Haqiqat kartalarini toping</h2>
-      <p class="lead">To‘g‘ri ma’lumotlarni tanlang. Bitta kartada kichik tuzoq bor.</p>
-      <div class="fact-grid">
-        ${facts.map((fact, index) => `
-          <button class="fact-card" data-correct="${fact[2]}" data-index="${index}" type="button">
-            <strong>${fact[0]}</strong><span>${fact[1]}</span>
-          </button>
-        `).join("")}
+  const body = () => {
+    const q = questions[index];
+    return `
+      <div>
+        <p class="eyebrow">2-xona · Arab tili dunyosi</p>
+        <h2>${q.question}</h2>
+        <p class="lead">${index + 1} / ${questions.length} · To‘g‘ri javobni tanlang.</p>
+        <div class="answer-grid">
+          ${q.options.map((option) => `<button class="answer-card" data-option="${option}" type="button">${option}</button>`).join("")}
+        </div>
+        <div id="factsFeedback" class="feedback-panel">Kitobning kirish qismidagi ma’lumotni eslang.</div>
       </div>
-      <div id="factsFeedback" class="feedback-panel">Kamida uchta to‘g‘ri faktni toping.</div>
-      <div class="button-row" style="margin-top:18px; justify-content:flex-end">
-        <button id="nextButton" class="primary-button hidden" type="button">Alifbo panoramasiga o‘tish</button>
-      </div>
-    </div>
-  `);
-
-  let selected = 0;
-  document.querySelectorAll(".fact-card").forEach((button) => {
-    button.addEventListener("click", () => {
-      if (button.disabled) return;
-      if (button.dataset.correct === "true") {
-        button.classList.add("correct");
-        button.disabled = true;
-        selected += 1;
-        reward(`fact-${button.dataset.index}`, 7);
-        document.querySelector("#factsFeedback").textContent = "To‘g‘ri! Bu ma’lumot kitobning kirish qismida berilgan.";
-        if (selected === 3) document.querySelector("#nextButton").classList.remove("hidden");
-      } else {
-        button.classList.add("wrong");
-        miss("Arab yozuvida katta va kichik harflar farqlanmaydi.");
-        setTimeout(() => button.classList.remove("wrong"), 500);
-      }
     });
-  });
-  bindNext();
+  `;
+  };
+
+  render(body());
+  const bind = () => {
+    document.querySelectorAll(".answer-card").forEach((button) => {
+      button.addEventListener("click", () => {
+        const q = questions[index];
+        if (button.dataset.option === q.answer) {
+          button.classList.add("correct");
+          reward(`fact-${index}`, 7);
+          document.querySelector("#factsFeedback").textContent = q.feedback;
+          setTimeout(() => {
+            index += 1;
+            if (index >= questions.length) {
+              next();
+            } else {
+              screen.querySelector(".screen-content").innerHTML = body();
+              bind();
+            }
+          }, 750);
+        } else {
+          button.classList.add("wrong");
+          miss(q.feedback);
+          setTimeout(() => button.classList.remove("wrong"), 500);
+        }
+      });
+    });
+  };
+  bind();
 }
 
 function alphabetScreen() {
@@ -215,44 +253,92 @@ function alphabetScreen() {
     return `<span class="letter-chip" style="--angle:${angle}">${letter}</span>`;
   }).join("");
 
-  render(`
+  const questions = [
+    {
+      question: "Arab alifbosida nechta harf bor?",
+      options: ["24", "26", "28", "30"],
+      answer: "28",
+      feedback: "To‘g‘ri: 28 ta harf."
+    },
+    {
+      question: "Harfning mustaqil yozilgan holati nima deyiladi?",
+      options: ["Alohida", "So‘z boshida", "So‘z o‘rtasida", "So‘z oxirida"],
+      answer: "Alohida",
+      feedback: "Mustaqil turgan harf alohida shakl hisoblanadi."
+    },
+    {
+      question: "Harf so‘zning birinchi o‘rnida kelsa, bu qaysi holat?",
+      options: ["Alohida", "So‘z boshida", "So‘z o‘rtasida", "So‘z oxirida"],
+      answer: "So‘z boshida",
+      feedback: "Birinchi o‘rindagi ko‘rinish — so‘z boshidagi shakl."
+    },
+    {
+      question: "Harf ikki tomondagi harflar orasida kelsa, bu qaysi holat?",
+      options: ["Alohida", "So‘z boshida", "So‘z o‘rtasida", "So‘z oxirida"],
+      answer: "So‘z o‘rtasida",
+      feedback: "Ikki harf orasidagi ko‘rinish — so‘z o‘rtasidagi shakl."
+    },
+    {
+      question: "Harf so‘zning yakunida kelsa, bu qaysi holat?",
+      options: ["Alohida", "So‘z boshida", "So‘z o‘rtasida", "So‘z oxirida"],
+      answer: "So‘z oxirida",
+      feedback: "So‘z yakunidagi ko‘rinish — so‘z oxiridagi shakl."
+    },
+    {
+      question: "Har bir arab harfi doimo faqat bitta ko‘rinishda yoziladimi?",
+      options: ["Ha", "Yo‘q", "Faqat katta harflar", "Faqat kichik harflar"],
+      answer: "Yo‘q",
+      feedback: "Harf so‘zdagi o‘rniga qarab bir necha ko‘rinishda yozilishi mumkin."
+    }
+  ];
+  let index = 0;
+
+  const body = () => `
     <div class="lesson-layout">
       <div>
         <p class="eyebrow">3-xona · Alifbo panoramasi</p>
-        <h2>28 harf — bitta uyg‘un tizim</h2>
-        <p class="lead">Hozir harflarning nomini yodlamaymiz. Ular bilan faqat tanishamiz: arab alifbosi 28 ta harfdan iborat.</p>
+        <h2>${questions[index].question}</h2>
+        <p class="lead">${index + 1} / ${questions.length} · Harflarning nomi hali test qilinmaydi.</p>
         <div class="answer-grid">
-          <button class="answer-card" data-answer="24" type="button">24 ta harf</button>
-          <button class="answer-card" data-answer="28" type="button">28 ta harf</button>
-          <button class="answer-card" data-answer="32" type="button">32 ta harf</button>
+          ${questions[index].options.map((option) => `<button class="answer-card" data-option="${option}" type="button">${option}</button>`).join("")}
         </div>
         <div id="alphabetFeedback" class="feedback-panel">To‘g‘ri sonni tanlang.</div>
-        <div class="button-row" style="margin-top:18px">
-          <button id="nextButton" class="primary-button hidden" type="button">Harf shakllarini ko‘rish</button>
-        </div>
       </div>
       <div class="alphabet-orbit" aria-label="28 ta arab harfi panoramasi">
         <div class="letters-ring">${ring}</div>
         <div class="alphabet-core"><div><strong>28</strong><span>ta harf</span></div></div>
       </div>
     </div>
-  `);
+  `;
 
-  document.querySelectorAll(".answer-card").forEach((button) => {
-    button.addEventListener("click", () => {
-      if (button.dataset.answer === "28") {
-        button.classList.add("correct");
-        reward("alphabet-count", 15);
-        document.querySelector("#alphabetFeedback").textContent = "To‘g‘ri! Arab alifbosi 28 ta harfdan iborat.";
-        document.querySelector("#nextButton").classList.remove("hidden");
-      } else {
-        button.classList.add("wrong");
-        miss("Yana bir bor markazdagi raqamga qarang.");
-        setTimeout(() => button.classList.remove("wrong"), 500);
-      }
+  render(body());
+
+  const bind = () => {
+    document.querySelectorAll(".answer-card").forEach((button) => {
+      button.addEventListener("click", () => {
+        const q = questions[index];
+        if (button.dataset.option === q.answer) {
+          button.classList.add("correct");
+          reward(`alphabet-${index}`, 7);
+          document.querySelector("#alphabetFeedback").textContent = q.feedback;
+          setTimeout(() => {
+            index += 1;
+            if (index >= questions.length) {
+              next();
+            } else {
+              screen.querySelector(".screen-content").innerHTML = body();
+              bind();
+            }
+          }, 750);
+        } else {
+          button.classList.add("wrong");
+          miss(q.feedback);
+          setTimeout(() => button.classList.remove("wrong"), 500);
+        }
+      });
     });
-  });
-  bindNext();
+  };
+  bind();
 }
 
 function formsScreen() {
@@ -298,7 +384,7 @@ function formsScreen() {
         reward(`form-${position}`, 5);
         if (position === stages.length) {
           sequence.textContent += ". Mukammal!";
-          document.querySelector("#nextButton").classList.remove("hidden");
+          setTimeout(next, 900);
         }
       } else {
         card.classList.add("wrong");
@@ -309,15 +395,22 @@ function formsScreen() {
   });
 
   document.querySelector("#resetSequence").addEventListener("click", reset);
-  bindNext();
 }
 
 function vowelScreen() {
   const questions = [
-    { symbol: "◌َ", name: "Fatha", sound: "a", hint: "yuqorida" },
-    { symbol: "◌ِ", name: "Kasra", sound: "i", hint: "pastda" },
-    { symbol: "◌ُ", name: "Damma", sound: "u", hint: "yuqorida" },
-    { symbol: "◌ْ", name: "Sukun", sound: "unlisiz", hint: "yuqorida" },
+    { prompt: "◌َ belgisi qanday nomlanadi?", symbol: "◌َ", options: ["Fatha", "Kasra", "Damma", "Sukun"], answer: "Fatha", feedback: "◌َ — fatha." },
+    { prompt: "◌ِ belgisi qanday nomlanadi?", symbol: "◌ِ", options: ["Fatha", "Kasra", "Damma", "Sukun"], answer: "Kasra", feedback: "◌ِ — kasra." },
+    { prompt: "◌ُ belgisi qanday nomlanadi?", symbol: "◌ُ", options: ["Fatha", "Kasra", "Damma", "Sukun"], answer: "Damma", feedback: "◌ُ — damma." },
+    { prompt: "◌ْ belgisi qanday nomlanadi?", symbol: "◌ْ", options: ["Fatha", "Kasra", "Damma", "Sukun"], answer: "Sukun", feedback: "◌ْ — sukun." },
+    { prompt: "Fatha qaysi qisqa tovushni bildiradi?", symbol: "◌َ", options: ["a", "i", "u", "unlisiz"], answer: "a", feedback: "Fatha qisqa “a” tovushini bildiradi." },
+    { prompt: "Kasra qaysi qisqa tovushni bildiradi?", symbol: "◌ِ", options: ["a", "i", "u", "unlisiz"], answer: "i", feedback: "Kasra qisqa “i” tovushini bildiradi." },
+    { prompt: "Damma qaysi qisqa tovushni bildiradi?", symbol: "◌ُ", options: ["a", "i", "u", "unlisiz"], answer: "u", feedback: "Damma qisqa “u” tovushini bildiradi." },
+    { prompt: "Qaysi belgi harfni unlisiz qiladi?", symbol: "◌ْ", options: ["Fatha", "Kasra", "Damma", "Sukun"], answer: "Sukun", feedback: "Sukun harfni unlisiz, sokin holatda bildiradi." },
+    { prompt: "Fatha harfning qayerida yoziladi?", symbol: "◌َ", options: ["Yuqorisida", "Pastida", "Yonida", "Ichida"], answer: "Yuqorisida", feedback: "Fatha harfning yuqorisida yoziladi." },
+    { prompt: "Kasra harfning qayerida yoziladi?", symbol: "◌ِ", options: ["Yuqorisida", "Pastida", "Yonida", "Ichida"], answer: "Pastida", feedback: "Kasra harfning pastida yoziladi." },
+    { prompt: "Damma harfning qayerida yoziladi?", symbol: "◌ُ", options: ["Yuqorisida", "Pastida", "Yonida", "Ichida"], answer: "Yuqorisida", feedback: "Damma harfning yuqorisida yoziladi." },
+    { prompt: "Sukun harfning qayerida yoziladi?", symbol: "◌ْ", options: ["Yuqorisida", "Pastida", "Yonida", "Ichida"], answer: "Yuqorisida", feedback: "Sukun harfning yuqorisida yoziladi." },
   ];
   let index = 0;
 
@@ -326,11 +419,10 @@ function vowelScreen() {
       <div id="symbolDisplay" class="symbol-display arabic">${questions[index].symbol}</div>
       <div>
         <p class="eyebrow">5-xona · Harakatlar ustaxonasi</p>
-        <h2>Belgining tovushini toping</h2>
-        <p class="lead">Bu belgi qaysi qisqa tovushni bildiradi?</p>
-        <button id="audioButton" class="audio-button" type="button" aria-label="Tovushni eshitish">▶</button>
+        <h2>${questions[index].prompt}</h2>
+        <p class="lead">${index + 1} / ${questions.length} · Nom, tovush va joylashuvni mustahkamlang.</p>
         <div class="option-grid">
-          ${["a", "i", "u", "unlisiz"].map((option) => `<button class="option-button" data-option="${option}" type="button"><strong>${option}</strong><span>Tovush</span></button>`).join("")}
+          ${questions[index].options.map((option) => `<button class="option-button" data-option="${option}" type="button"><strong>${option}</strong><span>Javob</span></button>`).join("")}
         </div>
         <div id="vowelFeedback" class="feedback-panel">${index + 1} / ${questions.length} · Belgini diqqat bilan kuzating.</div>
       </div>
@@ -340,21 +432,13 @@ function vowelScreen() {
   render(body());
 
   const bind = () => {
-    document.querySelector("#audioButton").addEventListener("click", () => {
-      speak(questions[index].sound === "unlisiz" ? "sukun" : questions[index].sound);
-      const symbol = document.querySelector("#symbolDisplay");
-      symbol.classList.remove("pulse");
-      void symbol.offsetWidth;
-      symbol.classList.add("pulse");
-    });
-
     document.querySelectorAll(".option-button").forEach((button) => {
       button.addEventListener("click", () => {
         const q = questions[index];
-        if (button.dataset.option === q.sound) {
+        if (button.dataset.option === q.answer) {
           button.classList.add("correct");
-          reward(`vowel-${index}`, 10);
-          document.querySelector("#vowelFeedback").textContent = `${q.name}: ${q.hint}, “${q.sound}” tovushi.`;
+          reward(`vowel-${index}`, 7);
+          document.querySelector("#vowelFeedback").textContent = q.feedback;
           setTimeout(() => {
             index += 1;
             if (index >= questions.length) {
@@ -367,7 +451,7 @@ function vowelScreen() {
           }, 850);
         } else {
           button.classList.add("wrong");
-          miss(`${q.name} ${q.hint} joylashadi. Yana urinib ko‘ring.`);
+          miss(q.feedback);
           setTimeout(() => button.classList.remove("wrong"), 500);
         }
       });
@@ -378,9 +462,18 @@ function vowelScreen() {
 
 function tanwinScreen() {
   const items = [
-    { symbol: "◌ً", name: "Ikki fatha", sound: "an", place: "yuqorida" },
-    { symbol: "◌ٍ", name: "Ikki kasra", sound: "in", place: "pastda" },
-    { symbol: "◌ٌ", name: "Ikki damma", sound: "un", place: "yuqorida" },
+    { prompt: "◌ً belgisi qanday nomlanadi?", symbol: "◌ً", options: ["Ikki fatha", "Ikki kasra", "Ikki damma"], answer: "Ikki fatha", feedback: "◌ً — ikki fatha." },
+    { prompt: "◌ٍ belgisi qanday nomlanadi?", symbol: "◌ٍ", options: ["Ikki fatha", "Ikki kasra", "Ikki damma"], answer: "Ikki kasra", feedback: "◌ٍ — ikki kasra." },
+    { prompt: "◌ٌ belgisi qanday nomlanadi?", symbol: "◌ٌ", options: ["Ikki fatha", "Ikki kasra", "Ikki damma"], answer: "Ikki damma", feedback: "◌ٌ — ikki damma." },
+    { prompt: "Ikki fatha qanday yozma tovush bilan ifodalanadi?", symbol: "◌ً", options: ["an", "in", "un"], answer: "an", feedback: "Ikki fatha “an” deb ifodalanadi." },
+    { prompt: "Ikki kasra qanday yozma tovush bilan ifodalanadi?", symbol: "◌ٍ", options: ["an", "in", "un"], answer: "in", feedback: "Ikki kasra “in” deb ifodalanadi." },
+    { prompt: "Ikki damma qanday yozma tovush bilan ifodalanadi?", symbol: "◌ٌ", options: ["an", "in", "un"], answer: "un", feedback: "Ikki damma “un” deb ifodalanadi." },
+    { prompt: "Ikki fatha qayerda yoziladi?", symbol: "◌ً", options: ["Harf yuqorisida", "Harf pastida", "Harf yonida"], answer: "Harf yuqorisida", feedback: "Ikki fatha harfning yuqorisida yoziladi." },
+    { prompt: "Ikki kasra qayerda yoziladi?", symbol: "◌ٍ", options: ["Harf yuqorisida", "Harf pastida", "Harf yonida"], answer: "Harf pastida", feedback: "Ikki kasra harfning pastida yoziladi." },
+    { prompt: "Ikki damma qayerda yoziladi?", symbol: "◌ٌ", options: ["Harf yuqorisida", "Harf pastida", "Harf yonida"], answer: "Harf yuqorisida", feedback: "Ikki damma harfning yuqorisida yoziladi." },
+    { prompt: "Tanvin odatda so‘zning qayerida keladi?", symbol: "◌ً", options: ["Boshida", "O‘rtasida", "Oxirida"], answer: "Oxirida", feedback: "Tanvin odatda so‘z oxirida keladi." },
+    { prompt: "Tanvin talaffuzida qaysi qo‘shimcha tovush seziladi?", symbol: "◌ٌ", options: ["n", "m", "y"], answer: "n", feedback: "Tanvin talaffuzida “n” tovushi eshitiladi." },
+    { prompt: "Tanvin nechta harakat belgisidan tashkil topadi?", symbol: "◌ٍ", options: ["Bitta", "Ikkita", "Uchta"], answer: "Ikkita", feedback: "Tanvin — ikkita harakatli belgi." },
   ];
   let index = 0;
 
@@ -389,11 +482,10 @@ function tanwinScreen() {
       <div id="symbolDisplay" class="symbol-display arabic">${items[index].symbol}</div>
       <div>
         <p class="eyebrow">6-xona · Tanvin laboratoriyasi</p>
-        <h2>AN · IN · UN</h2>
-        <p class="lead">Tanvin ikkita harakat belgisi bilan yoziladi va odatda so‘z oxirida keladi.</p>
-        <button id="audioButton" class="audio-button" type="button" aria-label="Tovushni eshitish">▶</button>
+        <h2>${items[index].prompt}</h2>
+        <p class="lead">${index + 1} / ${items.length} · Tanvinni har tomonlama mustahkamlang.</p>
         <div class="option-grid">
-          ${["an", "in", "un"].map((option) => `<button class="option-button" data-option="${option}" type="button"><strong>${option}</strong><span>Tanvin tovushi</span></button>`).join("")}
+          ${items[index].options.map((option) => `<button class="option-button" data-option="${option}" type="button"><strong>${option}</strong><span>Javob</span></button>`).join("")}
         </div>
         <div id="tanwinFeedback" class="feedback-panel">${index + 1} / ${items.length} · Tovushni tanlang.</div>
       </div>
@@ -403,21 +495,13 @@ function tanwinScreen() {
   render(body());
 
   const bind = () => {
-    document.querySelector("#audioButton").addEventListener("click", () => {
-      speak(items[index].sound);
-      const symbol = document.querySelector("#symbolDisplay");
-      symbol.classList.remove("pulse");
-      void symbol.offsetWidth;
-      symbol.classList.add("pulse");
-    });
-
     document.querySelectorAll(".option-button").forEach((button) => {
       button.addEventListener("click", () => {
         const item = items[index];
-        if (button.dataset.option === item.sound) {
+        if (button.dataset.option === item.answer) {
           button.classList.add("correct");
-          reward(`tanwin-${index}`, 12);
-          document.querySelector("#tanwinFeedback").textContent = `${item.name}: “${item.sound}”, harf ${item.place}.`;
+          reward(`tanwin-${index}`, 7);
+          document.querySelector("#tanwinFeedback").textContent = item.feedback;
           setTimeout(() => {
             index += 1;
             if (index >= items.length) {
@@ -430,7 +514,61 @@ function tanwinScreen() {
           }, 850);
         } else {
           button.classList.add("wrong");
-          miss(`${item.name} “${item.sound}” deb talaffuz qilinadi.`);
+          miss(item.feedback);
+          setTimeout(() => button.classList.remove("wrong"), 500);
+        }
+      });
+    });
+  };
+  bind();
+}
+
+function finalQuizScreen() {
+  const questions = [
+    { question: "Arab yozuvi qayerdan boshlanadi?", options: ["Chap tomondan", "O‘ng tomondan", "Markazdan"], answer: "O‘ng tomondan", feedback: "Arab yozuvi o‘ng tomondan boshlanadi." },
+    { question: "Qisqa “a” qaysi harakat bilan ifodalanadi?", options: ["Fatha", "Kasra", "Damma", "Sukun"], answer: "Fatha", feedback: "Qisqa “a” — fatha." },
+    { question: "Qisqa “i” qaysi harakat bilan ifodalanadi?", options: ["Fatha", "Kasra", "Damma", "Sukun"], answer: "Kasra", feedback: "Qisqa “i” — kasra." },
+    { question: "Qisqa “u” qaysi harakat bilan ifodalanadi?", options: ["Fatha", "Kasra", "Damma", "Sukun"], answer: "Damma", feedback: "Qisqa “u” — damma." },
+    { question: "◌ْ belgisi nimani bildiradi?", options: ["Qisqa a", "Qisqa i", "Qisqa u", "Unlisiz harf"], answer: "Unlisiz harf", feedback: "Sukun unlisiz harfni bildiradi." },
+    { question: "“in” qaysi tanvinga tegishli?", options: ["Ikki fatha", "Ikki kasra", "Ikki damma"], answer: "Ikki kasra", feedback: "“in” — ikki kasra." },
+    { question: "“un” qaysi tanvinga tegishli?", options: ["Ikki fatha", "Ikki kasra", "Ikki damma"], answer: "Ikki damma", feedback: "“un” — ikki damma." },
+    { question: "Tanvin odatda qayerda keladi?", options: ["So‘z boshida", "So‘z o‘rtasida", "So‘z oxirida"], answer: "So‘z oxirida", feedback: "Tanvin odatda so‘z oxirida keladi." },
+  ];
+  let index = 0;
+
+  const body = () => `
+    <div class="result-layout">
+      <p class="eyebrow" style="justify-content:center">7-xona · Yakuniy sinov</p>
+      <h2>${questions[index].question}</h2>
+      <p class="lead" style="margin-inline:auto">${index + 1} / ${questions.length} · Barcha o‘tilgan mavzular aralashmasi.</p>
+      <div class="answer-grid" style="text-align:left">
+        ${questions[index].options.map((option) => `<button class="answer-card" data-option="${option}" type="button">${option}</button>`).join("")}
+      </div>
+      <div id="finalFeedback" class="feedback-panel" style="text-align:left">Javobni tanlang.</div>
+    </div>
+  `;
+
+  render(body());
+  const bind = () => {
+    document.querySelectorAll(".answer-card").forEach((button) => {
+      button.addEventListener("click", () => {
+        const q = questions[index];
+        if (button.dataset.option === q.answer) {
+          button.classList.add("correct");
+          reward(`final-${index}`, 10);
+          document.querySelector("#finalFeedback").textContent = q.feedback;
+          setTimeout(() => {
+            index += 1;
+            if (index >= questions.length) {
+              next();
+            } else {
+              screen.querySelector(".screen-content").innerHTML = body();
+              bind();
+            }
+          }, 750);
+        } else {
+          button.classList.add("wrong");
+          miss(q.feedback);
           setTimeout(() => button.classList.remove("wrong"), 500);
         }
       });
@@ -491,17 +629,13 @@ function renderStep() {
     formsScreen,
     vowelScreen,
     tanwinScreen,
+    finalQuizScreen,
     resultScreen,
   ];
   screens[Math.min(state.step, screens.length - 1)]();
 }
 
 homeButton.addEventListener("click", goHome);
-soundButton.addEventListener("click", () => {
-  state.sound = !state.sound;
-  soundButton.querySelector("span").textContent = state.sound ? "♪" : "×";
-  showToast(state.sound ? "Ovoz yoqildi." : "Ovoz o‘chirildi.");
-});
 
 renderStep();
 
