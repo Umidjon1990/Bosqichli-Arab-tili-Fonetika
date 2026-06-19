@@ -1,4 +1,4 @@
-const CACHE_NAME = "fonetika-stage-4-v1";
+const CACHE_NAME = "fonetika-stage-5-v1";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -6,10 +6,15 @@ const APP_FILES = [
   "./stage2.css",
   "./stage3.css",
   "./stage4.css",
+  "./stage5.css",
   "./assets/vocabulary/tut.jpg",
   "./assets/vocabulary/uy.jpg",
   "./assets/vocabulary/sobit.jpg",
   "./assets/vocabulary/isbot.jpg",
+  "./assets/vocabulary5/aka.jpg",
+  "./assets/vocabulary5/javob-berdi.jpg",
+  "./assets/vocabulary5/tagida.jpg",
+  "./assets/vocabulary5/singil.jpg",
   "./app.js",
   "./manifest.webmanifest",
   "./assets/icon.svg"

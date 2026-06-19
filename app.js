@@ -28,6 +28,8 @@ const stage3Sections = 8;
 const stage3Activities = 72;
 const stage4Sections = 10;
 const stage4Activities = 104;
+const stage5Sections = 12;
+const stage5Activities = 128;
 const arabicLetters = ["ا","ب","ت","ث","ج","ح","خ","د","ذ","ر","ز","س","ش","ص","ض","ط","ظ","ع","غ","ف","ق","ك","ل","م","ن","و","ه","ي"];
 
 function shuffle(items) {
@@ -79,7 +81,7 @@ function playEffect(type) {
 }
 
 function updateChrome() {
-  const active = ["stage2", "stage3", "stage4"].includes(state.mode) || (state.step > 0 && state.step < totalSteps);
+  const active = ["stage2", "stage3", "stage4", "stage5"].includes(state.mode) || (state.step > 0 && state.step < totalSteps);
   progressWrap.classList.toggle("hidden", !active);
   homeButton.classList.toggle("hidden", state.mode === "stage1" && state.step === 0);
   if (state.mode === "stage2") {
@@ -94,6 +96,10 @@ function updateChrome() {
     stageLabel.textContent = "Fonetika · 4-bosqich";
     progressLabel.textContent = `${Math.min(state.step + 1, stage4Sections)} / ${stage4Sections} BO‘LIM · ${stage4Activities} TOPSHIRIQ`;
     progressBar.style.width = `${Math.min(100, ((state.step + 1) / stage4Sections) * 100)}%`;
+  } else if (state.mode === "stage5") {
+    stageLabel.textContent = "Fonetika · 5-bosqich";
+    progressLabel.textContent = `${Math.min(state.step + 1, stage5Sections)} / ${stage5Sections} BO‘LIM · ${stage5Activities} TOPSHIRIQ`;
+    progressBar.style.width = `${Math.min(100, ((state.step + 1) / stage5Sections) * 100)}%`;
   } else {
     stageLabel.textContent = "Fonetika · 1-bosqich";
     progressLabel.textContent = `${Math.min(state.step, totalSteps - 2)} / ${totalSteps - 2} BO‘LIM · ${totalActivities} TOPSHIRIQ`;
@@ -185,6 +191,7 @@ function heroScreen() {
           <button id="stage2Button" class="secondary-button" type="button">2-bosqich: Alif · Vov · Ya · Ba</button>
           <button id="stage3Button" class="secondary-button" type="button">3-bosqich: Tashdid · Madd · Hamza</button>
           <button id="stage4Button" class="secondary-button" type="button">4-bosqich: Ta · Sa · Yangi so‘zlar</button>
+          <button id="stage5Button" class="secondary-button" type="button">5-bosqich: Ha · Jim · Xo</button>
           <button id="aboutButton" class="secondary-button" type="button">Nimalarni o‘rganaman?</button>
         </div>
       </div>
@@ -209,6 +216,10 @@ function heroScreen() {
   document.querySelector("#stage4Button").addEventListener("click", () => {
     resetProgress("stage4");
     renderStage4();
+  });
+  document.querySelector("#stage5Button").addEventListener("click", () => {
+    resetProgress("stage5");
+    renderStage5();
   });
   document.querySelector("#aboutButton").addEventListener("click", () => {
     showToast("Yozuv yo‘nalishi, 28 harf, harakatlar, sukun va tanvin.");
@@ -754,7 +765,9 @@ function runQuestionDeck(config) {
 }
 
 function renderActiveMode() {
-  if (state.mode === "stage4") {
+  if (state.mode === "stage5") {
+    renderStage5();
+  } else if (state.mode === "stage4") {
     renderStage4();
   } else if (state.mode === "stage3") {
     renderStage3();
@@ -1889,6 +1902,181 @@ function renderStage4() {
   screens[Math.min(state.step, screens.length - 1)]();
 }
 
+const stage5Vocabulary = [
+  { word: "أَخٌ", meaning: "Aka / uka", image: "assets/vocabulary5/aka.jpg", color: "#466b87" },
+  { word: "أَجَابَ", meaning: "Javob berdi", image: "assets/vocabulary5/javob-berdi.jpg", color: "#b47b3c" },
+  { word: "تَحْتَ", meaning: "Tagida", image: "assets/vocabulary5/tagida.jpg", color: "#a63e3e" },
+  { word: "أُخْتٌ", meaning: "Singil", image: "assets/vocabulary5/singil.jpg", color: "#81527d" },
+];
+
+function stage5IntroScreen() {
+  render(`
+    <div class="stage5-hero">
+      <div class="three-zone-map" aria-hidden="true">
+        <div class="zone throat-zone"><span>ح</span><b>Halqum o‘rtasi</b></div>
+        <div class="zone palate-zone"><span>ج</span><b>Til–tanglay</b></div>
+        <div class="zone upper-zone"><span>خ</span><b>Halqum yuqorisi</b></div>
+        <div class="zone-lines"></div>
+      </div>
+      <div>
+        <p class="eyebrow">5-game · 23–29-slaydlar</p>
+        <h1>Uch maxraj ekspeditsiyasi</h1>
+        <p class="lead">Ha — halqum o‘rtasi, Jim — til va yuqori tanglay, Xo — halqum yuqorisi. Qalqala, iste’lo, yozuv, tracing, tez o‘qish va 4 yangi so‘z bir tizimda.</p>
+        <div class="skill-pills"><span>Halqum xaritasi</span><span>Qalqala</span><span>Iste’lo</span><span>3× tracing</span><span>4 yangi so‘z</span></div>
+        <button id="stage5Start" class="primary-button" type="button">Ekspeditsiyani boshlash</button>
+      </div>
+    </div>
+  `);
+  document.querySelector("#stage5Start").addEventListener("click", () => { state.step = 1; renderStage5(); });
+}
+
+function stage5LetterLesson(config) {
+  runQuestionDeck({
+    id: config.id,
+    eyebrow: config.eyebrow,
+    questions: config.questions,
+    visual: (q, index) => `
+      <div class="stage5-phonetic ${config.className}">
+        <div class="anatomy-core">
+          <div class="anatomy-head"></div><div class="anatomy-tongue"></div><div class="anatomy-throat"></div>
+          <i class="contact-point"></i>
+        </div>
+        <div class="stage5-glyph">${config.forms[index % 4]}</div>
+        <div class="stage5-quality">${config.quality}</div>
+        <div class="quality-effect">${"<i></i>".repeat(6)}</div>
+        <p>${config.maxraj}</p>
+      </div>
+    `,
+  });
+}
+
+function haLessonScreen() {
+  const q = [
+    ["ح harfining nomi?",["Ha","Jim","Xo","Haa"],"Ha","ح — Ha."],
+    ["Ha harfining maxraji?",["Halqum o‘rtasi","Halqum tubi","Halqum yuqorisi"],"Halqum o‘rtasi","Ha halqum o‘rtasidan chiqadi."],
+    ["Halqum nechta asosiy qismga bo‘linadi?",["Uch","Ikki","To‘rt"],"Uch","Halqum tubi, o‘rtasi va yuqorisi."],
+    ["Halqum o‘rtasining arabcha nomi?",["Vasatul halq","Aqsol halq","Adnal halq"],"Vasatul halq","Halqum o‘rtasi — vasatul halq."],
+    ["Hiqildoq tog‘ayi qayerda?",["Halqum o‘rtasida","Halqum tubida","Labda"],"Halqum o‘rtasida","Hiqildoq tog‘ayi halqum o‘rtasida."],
+    ["Ha nechta yozilish shakliga ega?",["To‘rt","Ikki","Uch"],"To‘rt","Ha to‘rt shaklli."],
+    ["Ha keyingi harfga ulanadimi?",["Ulanadi","Ulanmaydi","Faqat sukun bilan"],"Ulanadi","Ha keyingi harfga ulanadi."],
+    ["Ha alohida shakli qaysi?",["ح","ج","خ","ه"],"ح","Ha alohida: ح."],
+    ["Ha bosh shakli?",["حـ","ـحـ","ـح","ح"],"حـ","Ha boshida: حـ."],
+    ["Ha o‘rta shakli?",["ـحـ","حـ","ـح","ح"],"ـحـ","Ha o‘rtada: ـحـ."],
+    ["Ha oxirgi shakli?",["ـح","حـ","ـحـ","ح"],"ـح","Ha oxirida: ـح."],
+    ["Qaysi holatlarda Ha satr ostiga tushadi?",["Alohida va oxirida","Boshida va o‘rtada","Faqat boshida"],"Alohida va oxirida","Ha alohida va oxirida satr ostiga tushadi."],
+    ["Ha harfida nuqta bormi?",["Yo‘q","Bitta pastda","Bitta yuqorida"],"Yo‘q","ح nuqtasiz."],
+    ["ح ni qaysi harfdan ajratish muhim?",["ج va خ","ت va ث","ا va و"],"ج va خ","Ularning tanasi o‘xshash, nuqtalari farqli."],
+  ].map(([question,options,answer,feedback])=>({question,options,answer,feedback}));
+  stage5LetterLesson({id:"ha5",eyebrow:"1-dars · Ha harfi",questions:q,forms:["ح","حـ","ـحـ","ـح"],quality:"HALQUM",maxraj:"Halqum o‘rtasi · vasatul halq",className:"ha5-lab"});
+}
+
+function stage5Trace(config) {
+  makeStage4TracingScreen({ id:config.id,name:config.name,eyebrow:config.eyebrow,forms:config.forms,labels:["alohida","so‘z boshi","so‘z o‘rtasi","so‘z oxiri"],ink:config.ink,className:config.className });
+}
+function haTraceScreen(){stage5Trace({id:"ha5-trace",name:"Ha",eyebrow:"2-dars · Ha yozuv ustaxonasi",forms:["ح","حـ","ـحـ","ـح"],ink:"#25847e",className:"ha5-trace"});}
+
+function jimLessonScreen() {
+  const q = [
+    ["ج harfining to‘g‘ri nomi?",["Jim","Saa","Ha","Xo"],"Jim","ج — Jim. PPTdagi “Saa” yozuvi tahrir qilindi."],
+    ["Jim maxraji?",["Til o‘rtasi va yuqori tanglay","Halqum o‘rtasi","Ikki lab"],"Til o‘rtasi va yuqori tanglay","Jim til o‘rtasi yuqori tanglayga tegishi bilan chiqadi."],
+    ["Jimning maxsus sifati?",["Qalqala","Iste’lo","Raxova"],"Qalqala","Jim qalqala harflaridan."],
+    ["Qalqala qachon yuzaga keladi?",["Harf sukunli bo‘lganda","Fatha bo‘lganda","Tanvin bo‘lganda"],"Harf sukunli bo‘lganda","Qalqala sukunli holatda seziladi."],
+    ["Qalqala nimani anglatadi?",["Tebranish","Cho‘zilish","Yashirish"],"Tebranish","Qalqala — tebranish."],
+    ["Qalqala harflari nechta?",["Besh","Uch","Yetti"],"Besh","ق ط ب ج د — beshta."],
+    ["Jim qalqala guruhidami?",["Ha","Yo‘q","Faqat oxirida"],"Ha","Jim qalqala harfi."],
+    ["Kuchli qalqala qayerda?",["So‘z/gap oxirida to‘xtalganda","So‘z boshida","Harakatli holatda"],"So‘z/gap oxirida to‘xtalganda","To‘xtashda qalqala kuchliroq."],
+    ["Kuchsizroq qalqala qayerda?",["So‘z o‘rtasida","Gap oxirida","Madddan keyin"],"So‘z o‘rtasida","O‘rtadagi sukunli qalqala kuchsizroq."],
+    ["Jim alohida shakli?",["ج","ح","خ","ع"],"ج","Jim: ج."],
+    ["Jim bosh shakli?",["جـ","ـجـ","ـج","ج"],"جـ","Jim boshida: جـ."],
+    ["Jim o‘rta shakli?",["ـجـ","جـ","ـج","ج"],"ـجـ","Jim o‘rtada: ـجـ."],
+    ["Jim oxirgi shakli?",["ـج","جـ","ـجـ","ج"],"ـج","Jim oxirida: ـج."],
+    ["Jim nuqtasi qayerda?",["Pastida","Yuqorisida","Nuqtasiz"],"Pastida","ج pastida bitta nuqta."],
+  ].map(([question,options,answer,feedback])=>({question,options,answer,feedback}));
+  stage5LetterLesson({id:"jim5",eyebrow:"3-dars · Jim harfi",questions:q,forms:["ج","جـ","ـجـ","ـج"],quality:"QALQALA",maxraj:"Til o‘rtasi → yuqori tanglay",className:"jim5-lab"});
+}
+function jimTraceScreen(){stage5Trace({id:"jim5-trace",name:"Jim",eyebrow:"4-dars · Jim yozuv ustaxonasi",forms:["ج","جـ","ـجـ","ـج"],ink:"#b2673d",className:"jim5-trace"});}
+
+function xoLessonScreen() {
+  const q = [
+    ["خ harfining nomi?",["Xo","Ha","Jim","G‘oyn"],"Xo","خ — Xo."],
+    ["Xo maxraji?",["Halqum yuqorisi","Halqum o‘rtasi","Til uchi"],"Halqum yuqorisi","Xo halqum yuqorisidan."],
+    ["Xo talaffuzida yana qaysi soha ishtirok etadi?",["Til negizi va yumshoq tanglay","Ikki lab","Old tishlar"],"Til negizi va yumshoq tanglay","Til negizi–yumshoq tanglay mintaqasi."],
+    ["Xoning sifati?",["Iste’lo","Qalqala","G‘unna"],"Iste’lo","Xo — iste’lo, yo‘g‘on harf."],
+    ["Iste’lo talaffuzida tovush qayerga ko‘tariladi?",["Yuqori tanglayga","Pastki labga","Burunga"],"Yuqori tanglayga","Tovush yuqori tanglayga ko‘tariladi."],
+    ["Xo fatha bilan qanday tusda o‘qiladi?",["Yo‘g‘on “o”ga moyil","Ingichka “a”","Faqat “i”"],"Yo‘g‘on “o”ga moyil","Qo‘llanmada fatha bilan yo‘g‘on o tusida."],
+    ["Iste’lo harflari nechta?",["Yetti","Besh","Uch"],"Yetti","خ ص ض غ ط ق ظ — yetti."],
+    ["Qolgan ingichka harflar guruhi?",["Istifola","Raxova","Shidda"],"Istifola","Iste’loga qarshi — istifola."],
+    ["Xo alohida shakli?",["خ","ح","ج","غ"],"خ","Xo: خ."],
+    ["Xo bosh shakli?",["خـ","ـخـ","ـخ","خ"],"خـ","Xo boshida: خـ."],
+    ["Xo o‘rta shakli?",["ـخـ","خـ","ـخ","خ"],"ـخـ","Xo o‘rtada: ـخـ."],
+    ["Xo oxirgi shakli?",["ـخ","خـ","ـخـ","خ"],"ـخ","Xo oxirida: ـخ."],
+    ["Xo nuqtasi qayerda?",["Yuqorisida","Pastida","Nuqtasiz"],"Yuqorisida","خ yuqorisida bitta nuqta."],
+    ["Xo qaysi harflar bilan tanasi o‘xshash?",["ح va ج","ت va ث","ع va غ"],"ح va ج","ح ج خ bir shakl oilasi."],
+  ].map(([question,options,answer,feedback])=>({question,options,answer,feedback}));
+  stage5LetterLesson({id:"xo5",eyebrow:"5-dars · Xo harfi",questions:q,forms:["خ","خـ","ـخـ","ـخ"],quality:"ISTE’LO",maxraj:"Halqum yuqorisi · til negizi",className:"xo5-lab"});
+}
+function xoTraceScreen(){stage5Trace({id:"xo5-trace",name:"Xo",eyebrow:"6-dars · Xo yozuv ustaxonasi",forms:["خ","خـ","ـخـ","ـخ"],ink:"#704c88",className:"xo5-trace"});}
+
+function stage5ContrastScreen() {
+  const qs=[
+    ["Nuqtasiz shakl qaysi?",["ح","ج","خ"],"ح","Ha nuqtasiz."],["Pastida nuqtali qaysi?",["ج","ح","خ"],"ج","Jim pastida nuqta."],["Yuqorisida nuqtali qaysi?",["خ","ح","ج"],"خ","Xo yuqorisida nuqta."],
+    ["Halqum o‘rtasidan qaysi chiqadi?",["ح","ج","خ"],"ح","Ha — halqum o‘rtasi."],["Til o‘rtasi–tanglaydan?",["ج","ح","خ"],"ج","Jim — til o‘rtasi."],["Halqum yuqorisidan?",["خ","ح","ج"],"خ","Xo — halqum yuqorisi."],
+    ["Qalqala sifatli?",["ج","ح","خ"],"ج","Jim — qalqala."],["Iste’lo sifatli?",["خ","ح","ج"],"خ","Xo — iste’lo."],["Uchovining umumiyligi?",["To‘rt shaklli va ulanadi","Ikki shaklli","Ulanmaydi"],"To‘rt shaklli va ulanadi","Uchovi to‘rt shaklli."],
+    ["ـحـ qaysi?",["Ha o‘rta","Jim o‘rta","Xo o‘rta"],"Ha o‘rta","ـحـ."],["ـج qaysi?",["Jim oxiri","Ha oxiri","Xo oxiri"],"Jim oxiri","ـج."],["خـ qaysi?",["Xo bosh","Jim bosh","Ha bosh"],"Xo bosh","خـ."]
+  ].map(([question,options,answer,feedback])=>({question,options,answer,feedback}));
+  runQuestionDeck({id:"contrast5",eyebrow:"7-dars · Uch harf detektivi",questions:qs,visual:(q,i)=>`<div class="family-detector"><span class="${i%3===0?'active':''}">ح</span><span class="${i%3===1?'active':''}">ج</span><span class="${i%3===2?'active':''}">خ</span><div class="scanner"></div></div>`});
+}
+
+function stage5VocabularyScreen() {
+  let index=0, learning=true;
+  const recall=[
+    ["أَخٌ","Aka / uka"],["أَجَابَ","Javob berdi"],["تَحْتَ","Tagida"],["أُخْتٌ","Singil"],
+    ["assets/vocabulary5/aka.jpg","أَخٌ"],["assets/vocabulary5/javob-berdi.jpg","أَجَابَ"],["assets/vocabulary5/tagida.jpg","تَحْتَ"],["assets/vocabulary5/singil.jpg","أُخْتٌ"],
+    ["أَخٌ","assets/vocabulary5/aka.jpg"],["أَجَابَ","assets/vocabulary5/javob-berdi.jpg"],["تَحْتَ","assets/vocabulary5/tagida.jpg"],["أُخْتٌ","assets/vocabulary5/singil.jpg"],
+    ["Aka / uka","أَخٌ"],["Javob berdi","أَجَابَ"],["Tagida","تَحْتَ"],["Singil","أُخْتٌ"]
+  ];
+  const learn=()=>{const v=stage5Vocabulary[index];return `<div class="vocab-learning"><div class="vocab-image-frame" style="--accent:${v.color}"><img src="${v.image}" alt="${v.meaning}"><div class="memory-rings"></div></div><div><p class="eyebrow">8-dars · Yangi so‘z ${index+1}/4</p><div class="vocab-word arabic">${v.word}</div><h2>${v.meaning}</h2><p class="lead">Rasm, yozuv va ma’noni bog‘lang. So‘zni ko‘z bilan bo‘g‘inlarga ajrating.</p><div class="word-segments">${splitGraphemes(v.word).map(x=>`<span>${x}</span>`).join("")}</div><button id="learn5" class="primary-button">Yodladim</button></div></div>`};
+  const test=()=>{const [prompt,answer]=recall[index];const isImg=prompt.includes("/");const answerImg=answer.includes?.("/");return `<div class="vocab-recall">${isImg?`<div class="recall-main-image"><img src="${prompt}" alt=""></div>`:`<div class="recall-word arabic">${prompt}</div>`}<div class="mission-card"><p class="eyebrow">8-dars · Xotira chaqiruvi</p><h2>${isImg?'Rasmga mos so‘zni toping.':answerImg?'Mos rasmni toping.':'Mos javobni toping.'}</h2><p class="lead">${index+1}/16</p>${answerImg?`<div class="image-answer-grid">${shuffle(stage5Vocabulary.map(v=>v.image)).map(x=>`<button class="image-answer" data-value="${x}"><img src="${x}" alt=""></button>`).join("")}</div>`:`<div class="answer-grid">${shuffle((isImg||/[أ-ي]/.test(answer)?stage5Vocabulary.map(v=>v.word):stage5Vocabulary.map(v=>v.meaning))).map(x=>`<button class="answer-card arabic-option" data-value="${x}">${x}</button>`).join("")}</div>`}<div id="v5fb" class="feedback-panel">Xotiradan javob bering.</div></div></div>`};
+  render(learn());
+  const bindLearn=()=>document.querySelector("#learn5").addEventListener("click",()=>{reward(`v5learn-${index}`,10);if(++index===4){learning=false;index=0;screen.querySelector(".screen-content").innerHTML=test();bindTest()}else{screen.querySelector(".screen-content").innerHTML=learn();bindLearn()}});
+  const bindTest=()=>document.querySelectorAll("[data-value]").forEach(b=>b.addEventListener("click",()=>{const answer=recall[index][1],id=`v5test-${index}`;if(b.dataset.value===answer){b.classList.add("correct");reward(id,12);setTimeout(()=>{if(++index===recall.length){state.step++;renderStage5()}else{screen.querySelector(".screen-content").innerHTML=test();bindTest()}},650)}else{b.classList.add("wrong");miss("Rasm, so‘z va ma’noni yana bog‘lang.",id);setTimeout(()=>b.classList.remove("wrong"),450)}}));
+  bindLearn();
+}
+
+function stage5ReadingScreen() {
+  const raw=[
+    ["حَ","ha"],["حِ","hi"],["حُ","hu"],["حَا","haa"],["حِي","hii"],["حُو","huu"],["اَحْ","ah"],["اِحْ","ih"],["اُحْ","uh"],
+    ["جَ","ja"],["جِ","ji"],["جُ","ju"],["جَا","jaa"],["جِي","jii"],["جُو","juu"],["اَجْ","aj"],["اِجْ","ij"],["اُجْ","uj"],
+    ["خَ","xo"],["خِ","xi"],["خُ","xu"],["خَا","xoo"],["خِي","xii"],["خُو","xuu"],["اَخْ","ax"],["اِخْ","ix"],["اُخْ","ux"],
+    ["أَجَابَ","ajaaba"],["أَخٌ","axun"],["تَحْتَ","tahta"]
+  ];
+  const qs=raw.map(([w,a])=>({question:`${w} qanday o‘qiladi?`,options:shuffle([a,...(["ha","ji","xu","jaa","ah","axun"].filter(x=>x!==a).slice(0,2))]),answer:a,feedback:`${w} — ${a}.`}));
+  runQuestionDeck({id:"read5",eyebrow:"9-dars · Tez o‘qish yo‘lagi",questions:qs,visual:(q,i)=>`<div class="stage5-reader"><strong class="arabic">${q.question.split(" ")[0]}</strong><div class="reader-zones"><i></i><i></i><i></i></div><span>${i<9?"HA":i<18?"JIM":i<27?"XO":"SO‘Z"}</span></div>`});
+}
+
+function stage5MasteryScreen() {
+  const raw=[
+    ["Ha maxraji?",["Halqum o‘rtasi","Til o‘rtasi","Halqum yuqorisi"],"Halqum o‘rtasi"],["Jim sifati?",["Qalqala","Iste’lo","Raxova"],"Qalqala"],["Xo sifati?",["Iste’lo","Qalqala","Shidda"],"Iste’lo"],
+    ["Past nuqtali shakl?",["ج","ح","خ"],"ج"],["Yuqori nuqtali shakl?",["خ","ج","ح"],"خ"],["Nuqtasiz shakl?",["ح","ج","خ"],"ح"],
+    ["أَخٌ ma’nosi?",["Aka / uka","Singil","Tagida"],"Aka / uka"],["أُخْتٌ ma’nosi?",["Singil","Aka","Javob berdi"],"Singil"],["تَحْتَ ma’nosi?",["Tagida","Javob berdi","Aka"],"Tagida"],["أَجَابَ ma’nosi?",["Javob berdi","Tagida","Singil"],"Javob berdi"],
+    ["جُو qanday?",["juu","jaa","jii"],"juu"],["خَا qanday?",["xoo","xii","xuu"],"xoo"]
+  ];
+  const qs=raw.map(([question,options,answer])=>({question,options,answer,feedback:`To‘g‘ri javob: ${answer}.`}));
+  runQuestionDeck({id:"mastery5",eyebrow:"10-dars · Ekspeditsiya imtihoni",questions:qs,layout:"result-layout",prompt:"Maxraj, sifat, shakl, lug‘at va o‘qishni birlashtiring."});
+}
+
+function stage5FinalScreen() {
+  const accuracy=state.attempts?Math.round(state.correct/state.attempts*100):0,stars=accuracy>=90?3:accuracy>=75?2:1;
+  localStorage.setItem("fonetika-stage-5",JSON.stringify({score:state.score,accuracy,completedAt:new Date().toISOString()}));
+  render(`<div class="result-layout"><div class="stage5-medal"><span>ح</span><span>ج</span><span>خ</span></div><p class="eyebrow" style="justify-content:center">5-bosqich yakuni</p><h2>Uch maxraj ekspeditsiyasi tugadi!</h2><p class="lead" style="margin-inline:auto">Ha, Jim va Xo maxrajlari, qalqala, iste’lo, shakllar, yozuv, o‘qish va 4 yangi so‘z o‘zlashtirildi.</p><div class="stars">${"★".repeat(stars)}${"☆".repeat(3-stars)}</div><div class="result-stats"><div class="stat-card"><strong>${state.score}</strong><span>Ball</span></div><div class="stat-card"><strong>${accuracy}%</strong><span>Aniqlik</span></div><div class="stat-card"><strong>4/4</strong><span>Yangi so‘z</span></div></div><div class="button-row" style="justify-content:center"><button id="again5" class="secondary-button">Qayta mashq</button><button id="menu5" class="primary-button">Bosh menyu</button></div></div>`);
+  document.querySelector("#again5").onclick=()=>{resetProgress("stage5");renderStage5()};document.querySelector("#menu5").onclick=goHome;
+}
+
+function renderStage5() {
+  const screens=[stage5IntroScreen,haLessonScreen,haTraceScreen,jimLessonScreen,jimTraceScreen,xoLessonScreen,xoTraceScreen,stage5ContrastScreen,stage5VocabularyScreen,stage5ReadingScreen,stage5MasteryScreen,stage5FinalScreen];
+  screens[Math.min(state.step,screens.length-1)]();
+}
+
 function resultScreen() {
   const accuracy = state.attempts ? Math.round((state.correct / state.attempts) * 100) : 0;
   const mastery = Math.max(78, Math.min(100, accuracy));
@@ -1935,6 +2123,10 @@ function resultScreen() {
 }
 
 function renderStep() {
+  if (state.mode === "stage5") {
+    renderStage5();
+    return;
+  }
   if (state.mode === "stage4") {
     renderStage4();
     return;
@@ -1968,10 +2160,14 @@ effectButton.addEventListener("click", () => {
   showToast(state.soundEffects ? "Sound effectlar yoqildi." : "Sound effectlar o‘chirildi.");
 });
 
+const stage5Route = location.hash.match(/^#stage5(?:-(\d+))?$/);
 const stage4Route = location.hash.match(/^#stage4(?:-(\d+))?$/);
 const stage3Route = location.hash.match(/^#stage3(?:-(\d+))?$/);
 const stage2Route = location.hash.match(/^#stage2(?:-(\d+))?$/);
-if (stage4Route) {
+if (stage5Route) {
+  state.mode = "stage5";
+  state.step = Math.min(Number(stage5Route[1] || 0), stage5Sections - 1);
+} else if (stage4Route) {
   state.mode = "stage4";
   state.step = Math.min(Number(stage4Route[1] || 0), stage4Sections - 1);
 } else if (stage3Route) {

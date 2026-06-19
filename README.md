@@ -43,6 +43,18 @@ Javoblar har savolda avtomatik aralashtiriladi. To‘g‘ri va xato javoblar uch
 - lug‘atni qayta chaqirish va vaqtli o‘qish mashqlari;
 - yakuniy aralash mastery sinovi.
 
+## 5-bosqich
+
+23–29-slaydlar asosida Ha, Jim va Xo:
+
+- Ha: halqum o‘rtasi va halqumning uch bo‘limi;
+- Jim: til o‘rtasi–yuqori tanglay va qalqala;
+- Xo: halqum yuqorisi, til negizi va iste’lo;
+- uch harf uchun to‘rt shakl va tracing;
+- nuqta joylashuvi bo‘yicha farqlash;
+- 4 ta rasmli so‘z: `أَخٌ`, `أَجَابَ`, `تَحْتَ`, `أُخْتٌ`;
+- 30 ta o‘qish mashqi va yakuniy imtihon.
+
 ## Ishga tushirish
 
 Fayllarni oddiy lokal server orqali oching:
