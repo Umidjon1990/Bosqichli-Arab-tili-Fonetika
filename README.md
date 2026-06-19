@@ -30,6 +30,19 @@ Javoblar har savolda avtomatik aralashtiriladi. To‘g‘ri va xato javoblar uch
 - `بَابٌ`, `اَبٌ`, `بَيْتٌ` yangi so‘zlari;
 - yakuniy quvvat sinovi.
 
+## 4-bosqich
+
+18–22-slaydlar asosida Ta va Sa harflari:
+
+- maxraj va havo oqimi animatsiyasi;
+- Ta uchun shidda — portlovchi sifat;
+- Sa uchun raxova — sirg‘aluvchi sifat;
+- to‘rt yozilish shakli va tracing;
+- harakat, madd, sukun va tanvin bilan o‘qish;
+- 4 ta rasmli yangi so‘z: `تُوتٌ`, `بَيْتٌ`, `ثَابِتٌ`, `إِثْبَاتٌ`;
+- lug‘atni qayta chaqirish va vaqtli o‘qish mashqlari;
+- yakuniy aralash mastery sinovi.
+
 ## Ishga tushirish
 
 Fayllarni oddiy lokal server orqali oching:

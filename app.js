@@ -26,6 +26,8 @@ const stage2Sections = 9;
 const stage2Activities = 86;
 const stage3Sections = 8;
 const stage3Activities = 72;
+const stage4Sections = 10;
+const stage4Activities = 104;
 const arabicLetters = ["ا","ب","ت","ث","ج","ح","خ","د","ذ","ر","ز","س","ش","ص","ض","ط","ظ","ع","غ","ف","ق","ك","ل","م","ن","و","ه","ي"];
 
 function shuffle(items) {
@@ -35,6 +37,13 @@ function shuffle(items) {
     [copy[i], copy[j]] = [copy[j], copy[i]];
   }
   return copy;
+}
+
+function splitGraphemes(text) {
+  if (typeof Intl !== "undefined" && Intl.Segmenter) {
+    return [...new Intl.Segmenter("ar", { granularity: "grapheme" }).segment(text)].map(item => item.segment);
+  }
+  return [...text];
 }
 
 function playEffect(type) {
@@ -70,7 +79,7 @@ function playEffect(type) {
 }
 
 function updateChrome() {
-  const active = state.mode === "stage2" || state.mode === "stage3" || (state.step > 0 && state.step < totalSteps);
+  const active = ["stage2", "stage3", "stage4"].includes(state.mode) || (state.step > 0 && state.step < totalSteps);
   progressWrap.classList.toggle("hidden", !active);
   homeButton.classList.toggle("hidden", state.mode === "stage1" && state.step === 0);
   if (state.mode === "stage2") {
@@ -81,6 +90,10 @@ function updateChrome() {
     stageLabel.textContent = "Fonetika · 3-bosqich";
     progressLabel.textContent = `${Math.min(state.step + 1, stage3Sections)} / ${stage3Sections} BO‘LIM · ${stage3Activities} TOPSHIRIQ`;
     progressBar.style.width = `${Math.min(100, ((state.step + 1) / stage3Sections) * 100)}%`;
+  } else if (state.mode === "stage4") {
+    stageLabel.textContent = "Fonetika · 4-bosqich";
+    progressLabel.textContent = `${Math.min(state.step + 1, stage4Sections)} / ${stage4Sections} BO‘LIM · ${stage4Activities} TOPSHIRIQ`;
+    progressBar.style.width = `${Math.min(100, ((state.step + 1) / stage4Sections) * 100)}%`;
   } else {
     stageLabel.textContent = "Fonetika · 1-bosqich";
     progressLabel.textContent = `${Math.min(state.step, totalSteps - 2)} / ${totalSteps - 2} BO‘LIM · ${totalActivities} TOPSHIRIQ`;
@@ -171,6 +184,7 @@ function heroScreen() {
           <button id="startButton" class="primary-button" type="button">Sayohatni boshlash</button>
           <button id="stage2Button" class="secondary-button" type="button">2-bosqich: Alif · Vov · Ya · Ba</button>
           <button id="stage3Button" class="secondary-button" type="button">3-bosqich: Tashdid · Madd · Hamza</button>
+          <button id="stage4Button" class="secondary-button" type="button">4-bosqich: Ta · Sa · Yangi so‘zlar</button>
           <button id="aboutButton" class="secondary-button" type="button">Nimalarni o‘rganaman?</button>
         </div>
       </div>
@@ -191,6 +205,10 @@ function heroScreen() {
   document.querySelector("#stage3Button").addEventListener("click", () => {
     resetProgress("stage3");
     renderStage3();
+  });
+  document.querySelector("#stage4Button").addEventListener("click", () => {
+    resetProgress("stage4");
+    renderStage4();
   });
   document.querySelector("#aboutButton").addEventListener("click", () => {
     showToast("Yozuv yo‘nalishi, 28 harf, harakatlar, sukun va tanvin.");
@@ -736,7 +754,9 @@ function runQuestionDeck(config) {
 }
 
 function renderActiveMode() {
-  if (state.mode === "stage3") {
+  if (state.mode === "stage4") {
+    renderStage4();
+  } else if (state.mode === "stage3") {
     renderStage3();
   } else if (state.mode === "stage2") {
     renderStage2();
@@ -1399,6 +1419,476 @@ function renderStage3() {
   screens[Math.min(state.step, screens.length - 1)]();
 }
 
+const stage4Vocabulary = [
+  { word: "تُوتٌ", meaning: "Tut daraxti / tut mevasi", image: "assets/vocabulary/tut.jpg", color: "#7c385f" },
+  { word: "بَيْتٌ", meaning: "Uy", image: "assets/vocabulary/uy.jpg", color: "#bd6d35" },
+  { word: "ثَابِتٌ", meaning: "Sobit, bardavom", image: "assets/vocabulary/sobit.jpg", color: "#507953" },
+  { word: "إِثْبَاتٌ", meaning: "Isbot", image: "assets/vocabulary/isbot.jpg", color: "#a33d35" },
+];
+
+function stage4IntroScreen() {
+  render(`
+    <div class="stage4-hero">
+      <div class="articulation-chamber" aria-hidden="true">
+        <div class="jaw-profile">
+          <div class="upper-teeth"></div>
+          <div class="gum-line"></div>
+          <div class="tongue-tip"></div>
+          <div class="air-burst"></div>
+          <div class="air-stream"></div>
+        </div>
+        <div class="ta-saa-emblem"><span>ت</span><span>ث</span></div>
+      </div>
+      <div>
+        <p class="eyebrow">4-game · 18–22-slaydlar</p>
+        <h1>Ta va Sa talaffuz akademiyasi</h1>
+        <p class="lead">Til uchining ikki nozik holati, portlovchi va sirg‘aluvchi sifat, to‘rt yozilish shakli, tracing, tez o‘qish va rasmli lug‘at — barchasi bitta jiddiy darsda.</p>
+        <div class="skill-pills">
+          <span>Shidda</span><span>Raxova</span><span>Maxraj</span><span>Tracing</span><span>4 yangi so‘z</span>
+        </div>
+        <button id="stage4Start" class="primary-button" type="button">Akademiyaga kirish</button>
+      </div>
+    </div>
+  `);
+  document.querySelector("#stage4Start").addEventListener("click", () => {
+    state.step = 1;
+    renderStage4();
+  });
+}
+
+function taLessonScreen() {
+  const questions = [
+    { question: "ت harfining nomi nima?", options: ["Taa", "Saa", "Baa", "Yaa"], answer: "Taa", feedback: "ت — Taa harfi." },
+    { question: "Ta harfining maxrajida tilning qaysi qismi ishlaydi?", options: ["Til uchi", "Til o‘rtasi", "Til ildizi"], answer: "Til uchi", feedback: "Ta talaffuzida til uchi faol ishlaydi." },
+    { question: "Til uchi Ta talaffuzida qayerga tegadi?", options: ["Yuqori old tishlar milkiga", "Pastki labga", "Yumshoq tanglayga"], answer: "Yuqori old tishlar milkiga", feedback: "Ta: til uchi yuqori old tishlarning milkiga tegadi." },
+    { question: "Ta qaysi sifatga ega?", options: ["Shidda — portlovchi", "Raxova — sirg‘aluvchi", "G‘unna"], answer: "Shidda — portlovchi", feedback: "Ta — shidda, ya’ni portlovchi harf." },
+    { question: "Shidda talaffuzida havo nima qiladi?", options: ["Maxrajda to‘planadi", "Erkin sirg‘alib o‘tadi", "Burunga yo‘naladi"], answer: "Maxrajda to‘planadi", feedback: "Maxraj berkilib, havo qisqa muddat to‘planadi." },
+    { question: "To‘plangan havo keyin qanday chiqadi?", options: ["Portlab chiqadi", "Sekin yo‘qoladi", "Faqat burundan chiqadi"], answer: "Portlab chiqadi", feedback: "Shidda sifatida havo to‘siq ochilganda portlab chiqadi." },
+    { question: "Ta nechta yozilish ko‘rinishiga ega?", options: ["To‘rt", "Ikki", "Uch"], answer: "To‘rt", feedback: "Ta alohida, bosh, o‘rta va oxirgi shaklga ega." },
+    { question: "Ta o‘zidan keyingi harfga ulanadimi?", options: ["Ulanadi", "Ulanmaydi", "Faqat fatha bilan"], answer: "Ulanadi", feedback: "Ta o‘zidan keyingi harfga qo‘shib yoziladi." },
+    { question: "Ta shakllari satrga nisbatan qayerda?", options: ["Satr ustida", "Satr ostida", "Faqat oxiri ostida"], answer: "Satr ustida", feedback: "Ta harfining barcha shakllari satr ustida yoziladi." },
+    { question: "Ta harfining alohida shakli qaysi?", options: ["ت", "ث", "ب", "ن"], answer: "ت", feedback: "Ta alohida: ت." },
+    { question: "Ta so‘z boshida qanday yoziladi?", options: ["تـ", "ـتـ", "ـت", "ت"], answer: "تـ", feedback: "Ta so‘z boshida: تـ." },
+    { question: "Ta so‘z o‘rtasida qanday yoziladi?", options: ["ـتـ", "تـ", "ـت", "ت"], answer: "ـتـ", feedback: "Ta so‘z o‘rtasida: ـتـ." },
+    { question: "Ta so‘z oxirida qanday yoziladi?", options: ["ـت", "تـ", "ـتـ", "ت"], answer: "ـت", feedback: "Ta so‘z oxirida: ـت." },
+    { question: "Ta harfida nechta nuqta bor?", options: ["Ikki nuqta yuqorida", "Uch nuqta yuqorida", "Bitta nuqta pastda"], answer: "Ikki nuqta yuqorida", feedback: "Ta ustida ikkita nuqta bor." },
+  ];
+  runQuestionDeck({
+    id: "ta-lesson",
+    eyebrow: "1-dars · Ta harfi",
+    questions,
+    visual: (q, index) => `
+      <div class="phonetic-lab ta-lab">
+        <div class="phonetic-mouth">
+          <div class="teeth-row"></div><div class="tongue-contact"></div><div class="blocked-air"></div>
+        </div>
+        <div class="quality-badge">SHIDDA</div>
+        <div class="hero-glyph">${["ت","تـ","ـتـ","ـت"][index % 4]}</div>
+        <div class="burst-particles">${"<i></i>".repeat(7)}</div>
+        <p>Til uchi → yuqori old tishlar milki</p>
+      </div>
+    `,
+  });
+}
+
+function makeStage4TracingScreen(config) {
+  let index = 0;
+  const forms = config.forms;
+  const body = () => `
+    <div class="trace-layout stage4-trace">
+      <div>
+        <p class="eyebrow">${config.eyebrow}</p>
+        <h2>${config.name}: ${config.labels[index]} shaklini yozing</h2>
+        <p class="lead">Xira iz bo‘ylab o‘ngdan chapga chizing. Nuqtalar ham harfning ajralmas qismi.</p>
+        <div class="trace-stats"><span>${index + 1} / ${forms.length}</span><span id="tracePercent">0%</span></div>
+        <div class="button-row">
+          <button id="clearTrace" class="secondary-button" type="button">Tozalash</button>
+          <button id="finishTrace" class="primary-button" type="button" disabled>Tayyor</button>
+        </div>
+        <div id="traceFeedback" class="feedback-panel">Harf tanasi va nuqtalarini chizing.</div>
+      </div>
+      <div class="trace-board ${config.className}">
+        <canvas id="traceCanvas" aria-label="${config.name} yozish maydoni"></canvas>
+        <div class="writing-direction">←</div>
+      </div>
+    </div>
+  `;
+  render(body());
+
+  const bind = () => {
+    const canvas = document.querySelector("#traceCanvas");
+    const context = canvas.getContext("2d");
+    const ratio = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * ratio;
+    canvas.height = rect.height * ratio;
+    context.scale(ratio, ratio);
+    const width = rect.width;
+    const height = rect.height;
+    let drawing = false;
+    let last = null;
+    let distance = 0;
+    const drawGuide = () => {
+      context.clearRect(0, 0, width, height);
+      context.fillStyle = "rgba(12,83,96,.12)";
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.font = `700 ${Math.min(width, height) * .55}px "Traditional Arabic", serif`;
+      context.fillText(forms[index], width / 2, height / 2);
+      context.strokeStyle = "rgba(221,169,65,.25)";
+      context.lineWidth = 2;
+      context.setLineDash([8, 10]);
+      context.beginPath();
+      context.moveTo(22, height * .72);
+      context.lineTo(width - 22, height * .72);
+      context.stroke();
+      context.setLineDash([]);
+    };
+    drawGuide();
+    const point = (event) => {
+      const bounds = canvas.getBoundingClientRect();
+      return { x: event.clientX - bounds.left, y: event.clientY - bounds.top };
+    };
+    canvas.addEventListener("pointerdown", (event) => {
+      drawing = true; last = point(event); canvas.setPointerCapture(event.pointerId);
+    });
+    canvas.addEventListener("pointermove", (event) => {
+      if (!drawing) return;
+      const current = point(event);
+      context.strokeStyle = config.ink;
+      context.lineWidth = 13;
+      context.lineCap = "round";
+      context.lineJoin = "round";
+      context.beginPath();
+      context.moveTo(last.x, last.y);
+      context.lineTo(current.x, current.y);
+      context.stroke();
+      distance += Math.hypot(current.x - last.x, current.y - last.y);
+      last = current;
+      const percent = Math.min(100, Math.round(distance / 4.3));
+      document.querySelector("#tracePercent").textContent = `${percent}%`;
+      if (percent >= 78) document.querySelector("#finishTrace").disabled = false;
+    });
+    const stop = () => { drawing = false; last = null; };
+    canvas.addEventListener("pointerup", stop);
+    canvas.addEventListener("pointercancel", stop);
+    document.querySelector("#clearTrace").addEventListener("click", () => {
+      distance = 0; drawGuide();
+      document.querySelector("#tracePercent").textContent = "0%";
+      document.querySelector("#finishTrace").disabled = true;
+    });
+    document.querySelector("#finishTrace").addEventListener("click", () => {
+      reward(`${config.id}-${index}`, 20);
+      index += 1;
+      if (index >= forms.length) {
+        state.step += 1;
+        renderStage4();
+      } else {
+        screen.querySelector(".screen-content").innerHTML = body();
+        bind();
+      }
+    });
+  };
+  bind();
+}
+
+function taTracingScreen() {
+  makeStage4TracingScreen({
+    id: "ta-trace", name: "Ta", eyebrow: "2-dars · Ta yozuv ustaxonasi",
+    forms: ["ت", "تـ", "ـتـ", "ـت"], labels: ["alohida", "so‘z boshi", "so‘z o‘rtasi", "so‘z oxiri"],
+    ink: "#158c88", className: "ta-trace-board",
+  });
+}
+
+function saaLessonScreen() {
+  const questions = [
+    { question: "ث harfining qo‘llanmadagi nomi nima?", options: ["Saa", "Taa", "Baa", "Yaa"], answer: "Saa", feedback: "ث — Saa harfi." },
+    { question: "Sa harfining maxrajida tilning qaysi qismi ishlaydi?", options: ["Til uchi", "Til o‘rtasi", "Til ildizi"], answer: "Til uchi", feedback: "Sa talaffuzida til uchi ishlaydi." },
+    { question: "Sa talaffuzida til uchi qayerga tegadi?", options: ["Yuqori old tishlarning ichiga", "Yuqori milkka", "Pastki labga"], answer: "Yuqori old tishlarning ichiga", feedback: "Sa: til uchi yuqori old tishlarning ichiga yaqinlashadi/tegadi." },
+    { question: "Sa qaysi sifatga ega?", options: ["Raxova — sirg‘aluvchi", "Shidda — portlovchi", "Qalqala"], answer: "Raxova — sirg‘aluvchi", feedback: "Sa — raxova, ya’ni sirg‘aluvchi harf." },
+    { question: "Raxova talaffuzida havo nima qiladi?", options: ["Erkin sirg‘alib o‘tadi", "To‘liq to‘planadi", "Faqat burunga ketadi"], answer: "Erkin sirg‘alib o‘tadi", feedback: "Maxraj to‘liq berkimasligi sabab havo sirg‘aladi." },
+    { question: "Raxova sifati qachon yaqqolroq bilinadi?", options: ["Sukun bilan", "Faqat tanvin bilan", "Faqat madd bilan"], answer: "Sukun bilan", feedback: "Sirg‘aluvchilik sukunli holatda aniqroq seziladi." },
+    { question: "Sa nechta yozilish ko‘rinishiga ega?", options: ["To‘rt", "Ikki", "Uch"], answer: "To‘rt", feedback: "Sa to‘rt ko‘rinishli harf." },
+    { question: "Sa keyingi harfga ulanadimi?", options: ["Ulanadi", "Ulanmaydi", "Faqat kasrada"], answer: "Ulanadi", feedback: "Sa o‘zidan keyingi harfga ulanadi." },
+    { question: "Sa shakllari satrga nisbatan qayerda?", options: ["Satr ustida", "Satr ostida", "Faqat alohida ostida"], answer: "Satr ustida", feedback: "Sa barcha shakllarda satr ustida." },
+    { question: "Sa alohida shakli qaysi?", options: ["ث", "ت", "ب", "ن"], answer: "ث", feedback: "Sa alohida: ث." },
+    { question: "Sa so‘z boshida qanday yoziladi?", options: ["ثـ", "ـثـ", "ـث", "ث"], answer: "ثـ", feedback: "Sa so‘z boshida: ثـ." },
+    { question: "Sa so‘z o‘rtasida qanday yoziladi?", options: ["ـثـ", "ثـ", "ـث", "ث"], answer: "ـثـ", feedback: "Sa so‘z o‘rtasida: ـثـ." },
+    { question: "Sa so‘z oxirida qanday yoziladi?", options: ["ـث", "ثـ", "ـثـ", "ث"], answer: "ـث", feedback: "Sa so‘z oxirida: ـث." },
+    { question: "Sa harfida nechta nuqta bor?", options: ["Uch nuqta yuqorida", "Ikki nuqta yuqorida", "Bitta nuqta pastda"], answer: "Uch nuqta yuqorida", feedback: "Sa ustida uchta nuqta bor." },
+  ];
+  runQuestionDeck({
+    id: "saa-lesson",
+    eyebrow: "3-dars · Sa harfi",
+    questions,
+    visual: (q, index) => `
+      <div class="phonetic-lab saa-lab">
+        <div class="phonetic-mouth">
+          <div class="teeth-row exposed"></div><div class="tongue-between"></div><div class="flowing-air">${"<i></i>".repeat(5)}</div>
+        </div>
+        <div class="quality-badge">RAXOVA</div>
+        <div class="hero-glyph">${["ث","ثـ","ـثـ","ـث"][index % 4]}</div>
+        <p>Til uchi → yuqori old tishlar ichki tomoni</p>
+      </div>
+    `,
+  });
+}
+
+function saaTracingScreen() {
+  makeStage4TracingScreen({
+    id: "saa-trace", name: "Sa", eyebrow: "4-dars · Sa yozuv ustaxonasi",
+    forms: ["ث", "ثـ", "ـثـ", "ـث"], labels: ["alohida", "so‘z boshi", "so‘z o‘rtasi", "so‘z oxiri"],
+    ink: "#9b4f76", className: "saa-trace-board",
+  });
+}
+
+function qualityContrastScreen() {
+  const questions = [
+    { question: "Portlovchi sifatning arabcha nomi?", options: ["Shidda", "Raxova", "G‘unna"], answer: "Shidda", feedback: "Portlovchi sifat — shidda." },
+    { question: "Sirg‘aluvchi sifatning arabcha nomi?", options: ["Raxova", "Shidda", "Iste’lo"], answer: "Raxova", feedback: "Sirg‘aluvchi sifat — raxova." },
+    { question: "Qaysi harf shidda sifatiga ega?", options: ["ت", "ث", "ي"], answer: "ت", feedback: "Ta — shidda." },
+    { question: "Qaysi harf raxova sifatiga ega?", options: ["ث", "ت", "ب"], answer: "ث", feedback: "Sa — raxova." },
+    { question: "Qaysi sifatda maxraj berkilib qoladi?", options: ["Shidda", "Raxova", "Madd"], answer: "Shidda", feedback: "Shiddada havo yo‘li vaqtincha to‘siladi." },
+    { question: "Qaysi sifatda maxraj to‘liq berkimasligi kerak?", options: ["Raxova", "Shidda", "Tashdid"], answer: "Raxova", feedback: "Raxovada havo erkinroq o‘tadi." },
+    { question: "Shar ichidagi siqilgan havoga o‘xshatilgan sifat qaysi?", options: ["Shidda", "Raxova", "Tanvin"], answer: "Shidda", feedback: "Qo‘llanma shiddani havo to‘plangan sharga qiyoslaydi." },
+    { question: "Uzoq davom etuvchi havo oqimi qaysi sifatga mos?", options: ["Raxova", "Shidda", "Qalqala"], answer: "Raxova", feedback: "Raxova — davomli sirg‘aluvchi havo." },
+    { question: "تْ o‘qilganda nima seziladi?", options: ["Qisqa portlash", "Uzoq havo oqimi", "Burun tovushi"], answer: "Qisqa portlash", feedback: "Sukunli Ta shiddani aniq ko‘rsatadi." },
+    { question: "ثْ o‘qilganda nima seziladi?", options: ["Davomli havo oqimi", "Qisqa portlash", "Tovush yo‘qolishi"], answer: "Davomli havo oqimi", feedback: "Sukunli Sa raxovani yaqqol ko‘rsatadi." },
+    { question: "Ta va Sa nimasi bilan o‘xshash?", options: ["Ikkalasi to‘rt shaklli va ulanadi", "Ikkalasi ikki shaklli", "Ikkalasi ulanmaydi"], answer: "Ikkalasi to‘rt shaklli va ulanadi", feedback: "Ta va Sa to‘rt shaklli, satr ustida va keyingi harfga ulanadi." },
+    { question: "Ta va Sa asosiy farqi nimada?", options: ["Maxraj tafsiloti va sifatida", "Harf sonida", "Yozuv yo‘nalishida"], answer: "Maxraj tafsiloti va sifatida", feedback: "Til uchi joyi va havo oqimi ularni farqlaydi." },
+  ];
+  runQuestionDeck({
+    id: "quality-contrast",
+    eyebrow: "5-dars · Havo oqimi dueli",
+    questions,
+    visual: (q, index) => `
+      <div class="airflow-duel">
+        <div class="duel-side shidda-side"><strong>تْ</strong><span>SHIDDA</span><div class="burst-orb"></div></div>
+        <div class="duel-meter"><i style="--position:${index % 2 ? "70%" : "30%"}"></i></div>
+        <div class="duel-side raxova-side"><strong>ثْ</strong><span>RAXOVA</span><div class="stream-lines">${"<b></b>".repeat(4)}</div></div>
+      </div>
+    `,
+  });
+}
+
+function vocabularyAcademyScreen() {
+  let phase = "learn";
+  let index = 0;
+  const recallQuestions = [
+    { type: "meaning", word: "تُوتٌ", question: "تُوتٌ so‘zining ma’nosi?", options: ["Tut daraxti / tut mevasi", "Uy", "Isbot", "Sobit"], answer: "Tut daraxti / tut mevasi" },
+    { type: "meaning", word: "بَيْتٌ", question: "بَيْتٌ so‘zining ma’nosi?", options: ["Uy", "Tut mevasi", "Isbot", "Bardavom"], answer: "Uy" },
+    { type: "meaning", word: "ثَابِتٌ", question: "ثَابِتٌ so‘zining ma’nosi?", options: ["Sobit, bardavom", "Uy", "Tut mevasi", "Isbot"], answer: "Sobit, bardavom" },
+    { type: "meaning", word: "إِثْبَاتٌ", question: "إِثْبَاتٌ so‘zining ma’nosi?", options: ["Isbot", "Uy", "Bardavom", "Tut mevasi"], answer: "Isbot" },
+    { type: "word", image: "assets/vocabulary/tut.jpg", question: "Rasmga mos arabcha so‘zni toping.", options: ["تُوتٌ", "بَيْتٌ", "ثَابِتٌ", "إِثْبَاتٌ"], answer: "تُوتٌ" },
+    { type: "word", image: "assets/vocabulary/uy.jpg", question: "Rasmga mos arabcha so‘zni toping.", options: ["بَيْتٌ", "تُوتٌ", "إِثْبَاتٌ", "ثَابِتٌ"], answer: "بَيْتٌ" },
+    { type: "word", image: "assets/vocabulary/sobit.jpg", question: "Rasmga mos arabcha so‘zni toping.", options: ["ثَابِتٌ", "إِثْبَاتٌ", "بَيْتٌ", "تُوتٌ"], answer: "ثَابِتٌ" },
+    { type: "word", image: "assets/vocabulary/isbot.jpg", question: "Rasmga mos arabcha so‘zni toping.", options: ["إِثْبَاتٌ", "ثَابِتٌ", "بَيْتٌ", "تُوتٌ"], answer: "إِثْبَاتٌ" },
+    { type: "image", word: "تُوتٌ", question: "تُوتٌ uchun to‘g‘ri rasmni tanlang.", answer: "assets/vocabulary/tut.jpg" },
+    { type: "image", word: "بَيْتٌ", question: "بَيْتٌ uchun to‘g‘ri rasmni tanlang.", answer: "assets/vocabulary/uy.jpg" },
+    { type: "image", word: "ثَابِتٌ", question: "ثَابِتٌ uchun to‘g‘ri rasmni tanlang.", answer: "assets/vocabulary/sobit.jpg" },
+    { type: "image", word: "إِثْبَاتٌ", question: "إِثْبَاتٌ uchun to‘g‘ri rasmni tanlang.", answer: "assets/vocabulary/isbot.jpg" },
+    { type: "meaning", word: "بَيْتٌ", question: "“Uy” ma’nosidagi so‘zni toping.", options: ["بَيْتٌ", "تُوتٌ", "ثَابِتٌ", "إِثْبَاتٌ"], answer: "بَيْتٌ" },
+    { type: "meaning", word: "تُوتٌ", question: "“Tut mevasi” ma’nosidagi so‘zni toping.", options: ["تُوتٌ", "بَيْتٌ", "إِثْبَاتٌ", "ثَابِتٌ"], answer: "تُوتٌ" },
+    { type: "meaning", word: "ثَابِتٌ", question: "“Sobit, bardavom” ma’nosidagi so‘zni toping.", options: ["ثَابِتٌ", "إِثْبَاتٌ", "بَيْتٌ", "تُوتٌ"], answer: "ثَابِتٌ" },
+    { type: "meaning", word: "إِثْبَاتٌ", question: "“Isbot” ma’nosidagi so‘zni toping.", options: ["إِثْبَاتٌ", "ثَابِتٌ", "تُوتٌ", "بَيْتٌ"], answer: "إِثْبَاتٌ" },
+  ];
+
+  const learnBody = () => {
+    const item = stage4Vocabulary[index];
+    return `
+      <div class="vocab-learning">
+        <div class="vocab-image-frame" style="--accent:${item.color}">
+          <img src="${item.image}" alt="${item.meaning}">
+          <div class="memory-rings"></div>
+        </div>
+        <div>
+          <p class="eyebrow">6-dars · Yangi so‘z ${index + 1}/4</p>
+          <div class="vocab-word arabic">${item.word}</div>
+          <h2>${item.meaning}</h2>
+          <p class="lead">Rasm, arabcha shakl va ma’noni birgalikda eslab qoling. So‘zni harflarga ajratib kuzating.</p>
+          <div class="word-segments">${splitGraphemes(item.word).map(letter => `<span>${letter}</span>`).join("")}</div>
+          <button id="memorizedWord" class="primary-button" type="button">Yodladim</button>
+        </div>
+      </div>
+    `;
+  };
+
+  const recallBody = () => {
+    const q = recallQuestions[index];
+    const imageChoices = shuffle(stage4Vocabulary.map(item => item.image));
+    return `
+      <div class="vocab-recall">
+        ${q.image ? `<div class="recall-main-image"><img src="${q.image}" alt=""></div>` : `<div class="recall-word arabic">${q.word || "؟"}</div>`}
+        <div class="mission-card">
+          <p class="eyebrow">6-dars · Lug‘at xotirasi</p>
+          <h2>${q.question}</h2>
+          <p class="lead">${index + 1}/16 · So‘zlar endi yordamsiz esga olinadi.</p>
+          ${q.type === "image" ? `
+            <div class="image-answer-grid">
+              ${imageChoices.map(src => `<button class="image-answer" data-value="${src}" type="button"><img src="${src}" alt=""></button>`).join("")}
+            </div>
+          ` : `
+            <div class="answer-grid">
+              ${shuffle(q.options).map(option => `<button class="answer-card arabic-option" data-value="${option}" type="button">${option}</button>`).join("")}
+            </div>
+          `}
+          <div id="vocabFeedback" class="feedback-panel">Xotirangizdan javob bering.</div>
+        </div>
+      </div>
+    `;
+  };
+
+  render(learnBody());
+  const bindLearn = () => {
+    document.querySelector("#memorizedWord").addEventListener("click", () => {
+      reward(`vocab-learn-${index}`, 10);
+      index += 1;
+      if (index >= stage4Vocabulary.length) {
+        phase = "recall"; index = 0;
+        screen.querySelector(".screen-content").innerHTML = recallBody();
+        bindRecall();
+      } else {
+        screen.querySelector(".screen-content").innerHTML = learnBody();
+        bindLearn();
+      }
+    });
+  };
+  const bindRecall = () => {
+    document.querySelectorAll("[data-value]").forEach(button => {
+      button.addEventListener("click", () => {
+        const q = recallQuestions[index];
+        const id = `vocab-recall-${index}`;
+        if (button.dataset.value === q.answer) {
+          button.classList.add("correct");
+          reward(id, 12);
+          document.querySelector("#vocabFeedback").textContent = "To‘g‘ri! Rasm, so‘z va ma’no xotirada bog‘landi.";
+          setTimeout(() => {
+            index += 1;
+            if (index >= recallQuestions.length) {
+              state.step += 1; renderStage4();
+            } else {
+              screen.querySelector(".screen-content").innerHTML = recallBody();
+              bindRecall();
+            }
+          }, 700);
+        } else {
+          button.classList.add("wrong");
+          miss("Bu boshqa so‘zga tegishli. Rasm va arabcha shaklni yana solishtiring.", id);
+          setTimeout(() => button.classList.remove("wrong"), 500);
+        }
+      });
+    });
+  };
+  bindLearn();
+}
+
+function stage4ReadingScreen() {
+  const questions = [
+    { question: "تَ qanday o‘qiladi?", options: ["ta", "ti", "tu"], answer: "ta", feedback: "تَ — ta." },
+    { question: "تِ qanday o‘qiladi?", options: ["ti", "ta", "tu"], answer: "ti", feedback: "تِ — ti." },
+    { question: "تُ qanday o‘qiladi?", options: ["tu", "ti", "ta"], answer: "tu", feedback: "تُ — tu." },
+    { question: "تَا qanday o‘qiladi?", options: ["taa", "tii", "tuu"], answer: "taa", feedback: "تَا — taa." },
+    { question: "تِي qanday o‘qiladi?", options: ["tii", "taa", "tuu"], answer: "tii", feedback: "تِي — tii." },
+    { question: "تُو qanday o‘qiladi?", options: ["tuu", "tii", "taa"], answer: "tuu", feedback: "تُو — tuu." },
+    { question: "اَتْ qanday o‘qiladi?", options: ["at", "it", "ut"], answer: "at", feedback: "اَتْ — at." },
+    { question: "اِتْ qanday o‘qiladi?", options: ["it", "at", "ut"], answer: "it", feedback: "اِتْ — it." },
+    { question: "اُتْ qanday o‘qiladi?", options: ["ut", "it", "at"], answer: "ut", feedback: "اُتْ — ut." },
+    { question: "ثَ qanday o‘qiladi?", options: ["sa", "si", "su"], answer: "sa", feedback: "ثَ — sa (qo‘llanma transkripsiyasi)." },
+    { question: "ثِ qanday o‘qiladi?", options: ["si", "sa", "su"], answer: "si", feedback: "ثِ — si." },
+    { question: "ثُ qanday o‘qiladi?", options: ["su", "si", "sa"], answer: "su", feedback: "ثُ — su." },
+    { question: "ثَا qanday o‘qiladi?", options: ["saa", "sii", "suu"], answer: "saa", feedback: "ثَا — saa." },
+    { question: "ثِي qanday o‘qiladi?", options: ["sii", "saa", "suu"], answer: "sii", feedback: "ثِي — sii." },
+    { question: "ثُو qanday o‘qiladi?", options: ["suu", "sii", "saa"], answer: "suu", feedback: "ثُو — suu." },
+    { question: "اَثْ qanday o‘qiladi?", options: ["as", "is", "us"], answer: "as", feedback: "اَثْ — as." },
+    { question: "اِثْ qanday o‘qiladi?", options: ["is", "as", "us"], answer: "is", feedback: "اِثْ — is." },
+    { question: "اُثْ qanday o‘qiladi?", options: ["us", "is", "as"], answer: "us", feedback: "اُثْ — us." },
+    { question: "تَوْبًا ni toping.", options: ["tawban", "sawban", "tuutan"], answer: "tawban", feedback: "تَوْبًا — tawban." },
+    { question: "ثَوْبًا ni toping.", options: ["sawban", "tawban", "baytan"], answer: "sawban", feedback: "ثَوْبًا — sawban." },
+    { question: "تُوتًا ni toping.", options: ["tuutan", "buutan", "sawban"], answer: "tuutan", feedback: "تُوتًا — tuutan." },
+    { question: "بُيُوتٌ ni toping.", options: ["buyuutun", "baytun", "baabun"], answer: "buyuutun", feedback: "بُيُوتٌ — buyuutun." },
+    { question: "ثَبَتَ ni toping.", options: ["sabata", "subita", "asbata"], answer: "sabata", feedback: "ثَبَتَ — sabata." },
+    { question: "إِثْبَاتٌ ni toping.", options: ["isbaatun", "saabitun", "tuutun"], answer: "isbaatun", feedback: "إِثْبَاتٌ — isbaatun." },
+  ];
+  runQuestionDeck({
+    id: "stage4-reading",
+    eyebrow: "7-dars · O‘qish va tezlik",
+    questions,
+    visual: (q, index) => `
+      <div class="speed-reader">
+        <div class="speed-word arabic">${q.question.split(" ")[0]}</div>
+        <div class="speed-lanes"><i></i><i></i><i></i></div>
+        <div class="speed-timer"><span>${index < 9 ? "TA" : index < 18 ? "SA" : "SO‘Z"}</span><b>${String(index + 1).padStart(2, "0")}</b></div>
+      </div>
+    `,
+  });
+}
+
+function stage4MasteryScreen() {
+  const questions = [
+    { question: "Til uchi yuqori old tishlar milkiga tegadigan harf?", options: ["ت", "ث", "ب"], answer: "ت", feedback: "Ta maxraji — yuqori old tishlar milki." },
+    { question: "Til uchi yuqori old tishlarning ichiga yaqinlashadigan harf?", options: ["ث", "ت", "و"], answer: "ث", feedback: "Sa maxraji — yuqori old tishlarning ichki tomoni." },
+    { question: "Portlovchi sifatli harf qaysi?", options: ["ت", "ث", "ي"], answer: "ت", feedback: "Ta — shidda." },
+    { question: "Sirg‘aluvchi sifatli harf qaysi?", options: ["ث", "ت", "ب"], answer: "ث", feedback: "Sa — raxova." },
+    { question: "ـتـ qaysi shakl?", options: ["Ta o‘rta", "Sa o‘rta", "Ta oxiri"], answer: "Ta o‘rta", feedback: "ـتـ — Ta o‘rta shakli." },
+    { question: "ثـ qaysi shakl?", options: ["Sa bosh", "Ta bosh", "Sa oxiri"], answer: "Sa bosh", feedback: "ثـ — Sa bosh shakli." },
+    { question: "تُوتٌ ma’nosi?", options: ["Tut mevasi", "Uy", "Isbot"], answer: "Tut mevasi", feedback: "تُوتٌ — tut." },
+    { question: "بَيْتٌ ma’nosi?", options: ["Uy", "Tut", "Bardavom"], answer: "Uy", feedback: "بَيْتٌ — uy." },
+    { question: "ثَابِتٌ ma’nosi?", options: ["Sobit, bardavom", "Isbot", "Uy"], answer: "Sobit, bardavom", feedback: "ثَابِتٌ — sobit, bardavom." },
+    { question: "إِثْبَاتٌ ma’nosi?", options: ["Isbot", "Uy", "Tut"], answer: "Isbot", feedback: "إِثْبَاتٌ — isbot." },
+    { question: "تُو qanday o‘qiladi?", options: ["tuu", "tii", "taa"], answer: "tuu", feedback: "تُو — tuu." },
+    { question: "ثِي qanday o‘qiladi?", options: ["sii", "saa", "suu"], answer: "sii", feedback: "ثِي — sii." },
+  ];
+  runQuestionDeck({
+    id: "stage4-mastery",
+    eyebrow: "8-dars · Akademiya imtihoni",
+    questions,
+    layout: "result-layout",
+    prompt: "Maxraj, sifat, yozuv, lug‘at va o‘qishni birlashtiring.",
+  });
+}
+
+function stage4FinalScreen() {
+  const accuracy = state.attempts ? Math.round((state.correct / state.attempts) * 100) : 0;
+  const stars = accuracy >= 90 ? 3 : accuracy >= 75 ? 2 : 1;
+  localStorage.setItem("fonetika-stage-4", JSON.stringify({ score: state.score, accuracy, completedAt: new Date().toISOString() }));
+  render(`
+    <div class="result-layout">
+      <div class="stage4-crown"><span>ت</span><span>ث</span></div>
+      <p class="eyebrow" style="justify-content:center">4-bosqich yakuni</p>
+      <h2>Talaffuz akademiyasi muvaffaqiyatli tugadi!</h2>
+      <p class="lead" style="margin-inline:auto">Siz Ta va Sa maxrajini, shidda–raxova sifatlarini, to‘rt shaklni, yozishni, o‘qishni va 4 ta yangi so‘zni o‘zlashtirdingiz.</p>
+      <div class="stars">${"★".repeat(stars)}${"☆".repeat(3 - stars)}</div>
+      <div class="result-stats">
+        <div class="stat-card"><strong>${state.score}</strong><span>Jami ball</span></div>
+        <div class="stat-card"><strong>${accuracy}%</strong><span>Aniqlik</span></div>
+        <div class="stat-card"><strong>4/4</strong><span>Yangi so‘z</span></div>
+      </div>
+      <div class="button-row" style="justify-content:center">
+        <button id="stage4Again" class="secondary-button" type="button">Qayta mashq</button>
+        <button id="stage4Menu" class="primary-button" type="button">Bosh menyu</button>
+      </div>
+    </div>
+  `);
+  document.querySelector("#stage4Again").addEventListener("click", () => { resetProgress("stage4"); renderStage4(); });
+  document.querySelector("#stage4Menu").addEventListener("click", goHome);
+}
+
+function renderStage4() {
+  const screens = [
+    stage4IntroScreen,
+    taLessonScreen,
+    taTracingScreen,
+    saaLessonScreen,
+    saaTracingScreen,
+    qualityContrastScreen,
+    vocabularyAcademyScreen,
+    stage4ReadingScreen,
+    stage4MasteryScreen,
+    stage4FinalScreen,
+  ];
+  screens[Math.min(state.step, screens.length - 1)]();
+}
+
 function resultScreen() {
   const accuracy = state.attempts ? Math.round((state.correct / state.attempts) * 100) : 0;
   const mastery = Math.max(78, Math.min(100, accuracy));
@@ -1445,6 +1935,10 @@ function resultScreen() {
 }
 
 function renderStep() {
+  if (state.mode === "stage4") {
+    renderStage4();
+    return;
+  }
   if (state.mode === "stage3") {
     renderStage3();
     return;
@@ -1474,9 +1968,13 @@ effectButton.addEventListener("click", () => {
   showToast(state.soundEffects ? "Sound effectlar yoqildi." : "Sound effectlar o‘chirildi.");
 });
 
+const stage4Route = location.hash.match(/^#stage4(?:-(\d+))?$/);
 const stage3Route = location.hash.match(/^#stage3(?:-(\d+))?$/);
 const stage2Route = location.hash.match(/^#stage2(?:-(\d+))?$/);
-if (stage3Route) {
+if (stage4Route) {
+  state.mode = "stage4";
+  state.step = Math.min(Number(stage4Route[1] || 0), stage4Sections - 1);
+} else if (stage3Route) {
   state.mode = "stage3";
   state.step = Math.min(Number(stage3Route[1] || 0), stage3Sections - 1);
 } else if (stage2Route) {

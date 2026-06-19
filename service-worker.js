@@ -1,10 +1,15 @@
-const CACHE_NAME = "fonetika-stage-3-v1";
+const CACHE_NAME = "fonetika-stage-4-v1";
 const APP_FILES = [
   "./",
   "./index.html",
   "./styles.css",
   "./stage2.css",
   "./stage3.css",
+  "./stage4.css",
+  "./assets/vocabulary/tut.jpg",
+  "./assets/vocabulary/uy.jpg",
+  "./assets/vocabulary/sobit.jpg",
+  "./assets/vocabulary/isbot.jpg",
   "./app.js",
   "./manifest.webmanifest",
   "./assets/icon.svg"
