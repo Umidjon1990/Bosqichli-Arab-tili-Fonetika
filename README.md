@@ -55,7 +55,32 @@ Javoblar har savolda avtomatik aralashtiriladi. To‘g‘ri va xato javoblar uch
 - 4 ta rasmli so‘z: `أَخٌ`, `أَجَابَ`, `تَحْتَ`, `أُخْتٌ`;
 - 30 ta o‘qish mashqi va yakuniy imtihon.
 
+## 6-bosqich
+
+30–34-slaydlar asosida Dal va Zal:
+
+- Dal: til oldi va yuqori old tishlar ildizi;
+- Zal: til oldi va yuqori old tishlar uchi;
+- ikki shaklli, keyingi harfga ulanmaydigan harflar;
+- maxraj dueli va ulanishni kesish laboratoriyasi;
+- Dal va Zal tracing;
+- 4 rasmli so‘z: `ذُبَابٌ`, `أَخَذَ`, `أَدَبٌ`, `أَحَدٌ`;
+- 24 o‘qish mashqi va yakuniy imtihon.
+
 ## Ishga tushirish
+
+## 7–15-bosqichlar
+
+35–76-slaydlar ketma-ketligi to‘liq interaktiv darslarga aylantirildi:
+
+- 7: Ro–Za, 8: Sin–Shin, 9: Sod–Dod, 10: To–Zo;
+- 11: Ayn–G‘oyn, 12: Fa–Qof, 13: Kaf–Lam;
+- 14: Mim–Nun, 15: Ha–Hamza farqlash;
+- har bir bosqichda 110–114 ta topshiriq;
+- har bir yangi harf uchun 14 tadan qoida va maxraj savoli;
+- barcha shakllar tracingi, animatsion ulanish laboratoriyasi va maxraj dueli;
+- 4 ta rasmli so‘z, 16 ta lug‘at sinovi va 24 ta o‘qish mashqi;
+- shuffle, sound effect, ball, aniqlik va yakuniy mastery natijasi.
 
 Fayllarni oddiy lokal server orqali oching:
 
@@ -75,14 +100,8 @@ So‘ng brauzerda `http://localhost:4173` manzilini oching.
 
 Ilova tashqi kutubxonalarsiz ishlaydi. GitHub Pages uchun alohida build jarayoni talab qilinmaydi.
 
-## Kontent chegarasi
+## Kontent qamrovi
 
-Bu prototip faqat quyidagilarni sinaydi:
-
-- arab yozuvining o‘ngdan chapga yo‘nalishi;
-- alifboda 28 ta harf;
-- harfning to‘rt yozilish holati;
-- fatha, kasra, damma va sukun;
-- tanvinning `an`, `in`, `un` turlari.
-
-Alif, Vov, Ya va boshqa harflar bu bosqichda alohida test qilinmaydi.
+Ilova kitobning 4–76-slaydlarini bosqichma-bosqich qamrab oladi. O‘tilmagan
+harf keyingi dars testiga oldindan aralashtirilmaydi. Har bir yangi bosqich
+faqat avvalgi bilimlar va ayni darsdagi yangi harflardan foydalanadi.
