@@ -192,38 +192,67 @@ function bindNext(id = "nextButton") {
 
 function heroScreen() {
   render(`
-    <div class="hero">
-      <div>
-        <p class="eyebrow">1-game bo‘limi</p>
-        <h1>Arab yozuvi sirlariga kirish</h1>
-        <p class="lead">Arab tili, alifbo, qisqa unlilar va tanvin bilan ilk interaktiv sayohat. Bu bosqich faqat kitobning 4–8-slaydlariga asoslangan.</p>
-        <div class="button-row">
-          <button id="startButton" class="primary-button" type="button">Sayohatni boshlash</button>
-          <button id="stage2Button" class="secondary-button" type="button">2-bosqich: Alif · Vov · Ya · Ba</button>
-          <button id="stage3Button" class="secondary-button" type="button">3-bosqich: Tashdid · Madd · Hamza</button>
-          <button id="stage4Button" class="secondary-button" type="button">4-bosqich: Ta · Sa · Yangi so‘zlar</button>
-          <button id="stage5Button" class="secondary-button" type="button">5-bosqich: Ha · Jim · Xo</button>
-          <button id="stage6Button" class="secondary-button" type="button">6-bosqich: Dal · Zal</button>
-          <div class="lesson-menu-grid">
-            <div class="advanced-group-title">35–76-slaydlar · Yangi akademiyalar</div>
-            <button class="secondary-button advanced-stage-button" data-stage="stage7" type="button">7 · Ro — Za</button>
-            <button class="secondary-button advanced-stage-button" data-stage="stage8" type="button">8 · Sin — Shin</button>
-            <button class="secondary-button advanced-stage-button" data-stage="stage9" type="button">9 · Sod — Dod</button>
-            <button class="secondary-button advanced-stage-button" data-stage="stage10" type="button">10 · To — Zo</button>
-            <button class="secondary-button advanced-stage-button" data-stage="stage11" type="button">11 · Ayn — G‘oyn</button>
-            <button class="secondary-button advanced-stage-button" data-stage="stage12" type="button">12 · Fa — Qof</button>
-            <button class="secondary-button advanced-stage-button" data-stage="stage13" type="button">13 · Kaf — Lam</button>
-            <button class="secondary-button advanced-stage-button" data-stage="stage14" type="button">14 · Mim — Nun</button>
-            <button class="secondary-button advanced-stage-button" data-stage="stage15" type="button">15 · Ha — Hamza</button>
-          </div>
-          <button id="aboutButton" class="secondary-button" type="button">Nimalarni o‘rganaman?</button>
+    <div class="contents-page">
+      <div class="contents-heading">
+        <div>
+          <p class="eyebrow">Interaktiv mundarija</p>
+          <h1>Arab yozuvi sirlariga kirish</h1>
+          <p class="lead">Bosqichli Arab tili FONETIKA kitobi asosida</p>
         </div>
-      </div>
-      <div class="manuscript" aria-hidden="true">
+        <div class="manuscript contents-mark" aria-hidden="true">
         <div class="book">
           <div class="page">ع</div>
           <div class="page">ض</div>
         </div>
+        </div>
+      </div>
+
+      <div class="contents-grid">
+        <button id="startButton" class="contents-card featured" type="button">
+          <span class="contents-number">1</span><strong>Kirish</strong>
+        </button>
+        <button id="stage2Button" class="contents-card" type="button">
+          <span class="contents-number">2</span><strong>Alif · Vov · Ya · Ba</strong>
+        </button>
+        <button id="stage3Button" class="contents-card" type="button">
+          <span class="contents-number">3</span><strong>Tashdid · Madd · Hamza</strong>
+        </button>
+        <button id="stage4Button" class="contents-card" type="button">
+          <span class="contents-number">4</span><strong>Ta · Sa</strong>
+        </button>
+        <button id="stage5Button" class="contents-card" type="button">
+          <span class="contents-number">5</span><strong>Ha · Jim · Xo</strong>
+        </button>
+        <button id="stage6Button" class="contents-card" type="button">
+          <span class="contents-number">6</span><strong>Dal · Zal</strong>
+        </button>
+        <button class="contents-card advanced-stage-button" data-stage="stage7" type="button">
+          <span class="contents-number">7</span><strong>Ro · Za</strong>
+        </button>
+        <button class="contents-card advanced-stage-button" data-stage="stage8" type="button">
+          <span class="contents-number">8</span><strong>Sin · Shin</strong>
+        </button>
+        <button class="contents-card advanced-stage-button" data-stage="stage9" type="button">
+          <span class="contents-number">9</span><strong>Sod · Dod</strong>
+        </button>
+        <button class="contents-card advanced-stage-button" data-stage="stage10" type="button">
+          <span class="contents-number">10</span><strong>To · Zo</strong>
+        </button>
+        <button class="contents-card advanced-stage-button" data-stage="stage11" type="button">
+          <span class="contents-number">11</span><strong>Ayn · G‘oyn</strong>
+        </button>
+        <button class="contents-card advanced-stage-button" data-stage="stage12" type="button">
+          <span class="contents-number">12</span><strong>Fa · Qof</strong>
+        </button>
+        <button class="contents-card advanced-stage-button" data-stage="stage13" type="button">
+          <span class="contents-number">13</span><strong>Kaf · Lam</strong>
+        </button>
+        <button class="contents-card advanced-stage-button" data-stage="stage14" type="button">
+          <span class="contents-number">14</span><strong>Mim · Nun</strong>
+        </button>
+        <button class="contents-card advanced-stage-button" data-stage="stage15" type="button">
+          <span class="contents-number">15</span><strong>Ha · Hamza</strong>
+        </button>
       </div>
     </div>
   `);
@@ -251,9 +280,6 @@ function heroScreen() {
       resetProgress(button.dataset.stage);
       renderAdvancedStage();
     });
-  });
-  document.querySelector("#aboutButton").addEventListener("click", () => {
-    showToast("Yozuv yo‘nalishi, 28 harf, harakatlar, sukun va tanvin.");
   });
 }
 

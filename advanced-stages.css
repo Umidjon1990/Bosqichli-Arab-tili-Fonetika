@@ -84,9 +84,98 @@
 .advanced-medal span { width:105px;aspect-ratio:1;display:grid;place-items:center;border-radius:28px;background:var(--stage-accent);color:#fff5d7;font:700 5.2rem/1 "Traditional Arabic",serif;box-shadow:0 20px 40px rgba(5,45,52,.23); }
 .advanced-medal span+span { margin-left:-18px;translate:0 16px;background:#0b5660; }.advanced-medal i { position:absolute;inset:-16px;border:3px dashed #dda941;border-radius:50%;animation:advancedSpin 18s linear infinite; }
 
-.lesson-menu-grid { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100%;margin-top:10px; }
-.lesson-menu-grid .secondary-button { width:100%;min-height:58px;padding:11px 12px; }
-.advanced-group-title { grid-column:1/-1;margin:10px 0 0;color:#71878a;font-size:.78rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase; }
+.contents-page { width:100%; }
+.contents-heading {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:32px;
+  margin-bottom:clamp(28px,4vw,46px);
+}
+.contents-heading h1 {
+  max-width:760px;
+  margin-bottom:12px;
+  font-size:clamp(40px,5.3vw,70px);
+}
+.contents-heading .lead {
+  margin:0;
+  color:#355f65;
+  font-weight:700;
+}
+.contents-mark {
+  flex:0 0 230px;
+  min-height:180px;
+  transform:scale(.82);
+}
+.contents-grid {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+}
+.contents-card {
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:15px;
+  min-height:78px;
+  padding:13px 18px;
+  overflow:hidden;
+  border:1px solid rgba(12,83,96,.16);
+  border-radius:20px;
+  color:#0a5260;
+  text-align:left;
+  background:rgba(255,255,255,.72);
+  box-shadow:0 8px 22px rgba(18,71,79,.07);
+  cursor:pointer;
+  transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease,background .22s ease;
+}
+.contents-card::after {
+  position:absolute;
+  right:-30px;
+  bottom:-38px;
+  width:90px;
+  aspect-ratio:1;
+  content:"";
+  border:1px solid rgba(12,132,139,.12);
+  border-radius:50%;
+  transition:scale .25s ease;
+}
+.contents-card:hover {
+  transform:translateY(-4px);
+  border-color:rgba(12,132,139,.42);
+  background:#fff;
+  box-shadow:0 15px 30px rgba(18,71,79,.13);
+}
+.contents-card:hover::after { scale:1.45; }
+.contents-number {
+  flex:0 0 46px;
+  width:46px;
+  aspect-ratio:1;
+  display:grid;
+  place-items:center;
+  border-radius:15px;
+  color:#fff;
+  background:linear-gradient(145deg,#0b7d83,#07515e);
+  box-shadow:0 8px 18px rgba(12,83,96,.2);
+  font-size:1rem;
+  font-weight:900;
+}
+.contents-card strong {
+  position:relative;
+  z-index:1;
+  font-size:clamp(.96rem,1.35vw,1.12rem);
+  line-height:1.25;
+}
+.contents-card.featured {
+  color:#fff;
+  border-color:transparent;
+  background:linear-gradient(135deg,#0b6974,#108d8d);
+}
+.contents-card.featured .contents-number {
+  color:#0a5661;
+  background:#f3cd70;
+}
+.contents-card.featured::after { border-color:rgba(255,255,255,.2); }
 
 @keyframes advancedSpin{to{rotate:360deg}}
 @keyframes advancedFloat{50%{translate:0 -12px}}
@@ -102,12 +191,14 @@
 @media (max-width:900px){
   .advanced-hero{grid-template-columns:1fr;min-height:auto}.advanced-orbit{min-height:330px;order:2}
   .orbit-letter{width:95px;font-size:4.3rem}.maxraj-duel{min-height:330px}.maxraj-duel strong{font-size:5rem}
-  .lesson-menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .contents-heading{align-items:flex-start}.contents-mark{flex-basis:180px;min-height:140px}
+  .contents-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:620px){
   .advanced-orbit{min-height:280px}.advanced-mouth,.maxraj-duel,.connection-lab,.advanced-reader,.mastery-seal{min-height:300px;padding:18px;border-radius:25px}
   .advanced-glyph,.connection-lab>span{font-size:4.8rem}.maxraj-duel{gap:8px}.maxraj-duel>div{min-height:210px;padding:8px}.maxraj-duel strong{font-size:4rem}.maxraj-duel span{font-size:.78rem}
-  .lesson-menu-grid{grid-template-columns:1fr}.advanced-group-title{margin-top:16px}
+  .contents-heading{display:block}.contents-mark{display:none}.contents-heading h1{font-size:clamp(38px,12vw,54px)}
+  .contents-grid{grid-template-columns:1fr;gap:10px}.contents-card{min-height:68px;border-radius:17px}
 }
 @media (prefers-reduced-motion:reduce){
   .advanced-orbit,.advanced-orbit *,.advanced-mouth *,.maxraj-duel *,.connection-lab *,.advanced-reader *,.mastery-seal *,.advanced-medal *{animation:none!important}

@@ -1,4 +1,4 @@
-const CACHE_NAME = "fonetika-stage-15-v1";
+const CACHE_NAME = "fonetika-stage-15-v2";
 const APP_FILES = [
   "./",
   "./index.html",
