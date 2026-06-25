@@ -214,7 +214,36 @@ const READING_LESSONS = [
     id: "stage-4",
     title: "4-bosqich: Ta · Sa",
     accent: "#b96b41",
-    items: [["تُوتٌ", "tutun"], ["بَيْتٌ", "baytun"], ["ثَابِتٌ", "thaabitun"], ["إِثْبَاتٌ", "ithbaatun"]],
+    items: [
+      { word: "تُوتٌ", transliteration: "tutun", group: "Tarjimali so‘zlar", meaning: "Tut daraxti / tut mevasi", color: "#7c385f" },
+      { word: "بَيْتٌ", transliteration: "baytun", group: "Tarjimali so‘zlar", meaning: "Uy", color: "#bd6d35" },
+      { word: "ثَابِتٌ", transliteration: "thaabitun", group: "Tarjimali so‘zlar", meaning: "Sobit, bardavom", color: "#507953" },
+      { word: "إِثْبَاتٌ", transliteration: "ithbaatun", group: "Tarjimali so‘zlar", meaning: "Isbot", color: "#a33d35" },
+      { word: "تَ", transliteration: "ta", group: "O‘qish mashqlari", color: "#0f858a" },
+      { word: "تِ", transliteration: "ti", group: "O‘qish mashqlari", color: "#2b6cb0" },
+      { word: "تُ", transliteration: "tu", group: "O‘qish mashqlari", color: "#6b46c1" },
+      { word: "تَا", transliteration: "taa", group: "O‘qish mashqlari", color: "#b7791f" },
+      { word: "تِي", transliteration: "tii", group: "O‘qish mashqlari", color: "#2f855a" },
+      { word: "تُو", transliteration: "tuu", group: "O‘qish mashqlari", color: "#c05621" },
+      { word: "أَتْ", transliteration: "at", group: "O‘qish mashqlari", color: "#805ad5" },
+      { word: "إِتْ", transliteration: "it", group: "O‘qish mashqlari", color: "#319795" },
+      { word: "أُتْ", transliteration: "ut", group: "O‘qish mashqlari", color: "#d53f8c" },
+      { word: "ثَ", transliteration: "sa", group: "O‘qish mashqlari", color: "#9b4f76" },
+      { word: "ثِ", transliteration: "si", group: "O‘qish mashqlari", color: "#4c51bf" },
+      { word: "ثُ", transliteration: "su", group: "O‘qish mashqlari", color: "#2c7a7b" },
+      { word: "ثَا", transliteration: "saa", group: "O‘qish mashqlari", color: "#b83280" },
+      { word: "ثِي", transliteration: "sii", group: "O‘qish mashqlari", color: "#276749" },
+      { word: "ثُو", transliteration: "suu", group: "O‘qish mashqlari", color: "#dd6b20" },
+      { word: "أَثْ", transliteration: "as", group: "O‘qish mashqlari", color: "#553c9a" },
+      { word: "إِثْ", transliteration: "is", group: "O‘qish mashqlari", color: "#2b6cb0" },
+      { word: "أُثْ", transliteration: "us", group: "O‘qish mashqlari", color: "#047857" },
+      { word: "تَوْبًا", transliteration: "tawban", group: "O‘qish mashqlari", color: "#b45309" },
+      { word: "ثَوْبًا", transliteration: "sawban", group: "O‘qish mashqlari", color: "#be185d" },
+      { word: "تُوتًا", transliteration: "tuutan", group: "O‘qish mashqlari", color: "#7c3aed" },
+      { word: "بُيُوتٌ", transliteration: "buyuutun", group: "O‘qish mashqlari", color: "#0f766e" },
+      { word: "ثَبَتَ", transliteration: "sabata", group: "O‘qish mashqlari", color: "#92400e" },
+      { word: "إِثْبَاتٌ", transliteration: "isbaatun", group: "O‘qish mashqlari", color: "#991b1b" },
+    ],
   },
   {
     id: "stage-5",
@@ -284,9 +313,8 @@ const READING_LESSONS = [
   },
 ].map((lesson) => ({
   ...lesson,
-  items: lesson.items.map(([word, transliteration], index) => ({
-    word,
-    transliteration,
+  items: lesson.items.map((item, index) => ({
+    ...(Array.isArray(item) ? { word: item[0], transliteration: item[1] } : item),
     audio: `assets/reading/${lesson.id}/word-${String(index + 1).padStart(2, "0")}.mp3`,
   })),
 }));
@@ -361,6 +389,12 @@ function readingHubScreen() {
 
 function readingLessonScreen(index) {
   const lesson = READING_LESSONS[index] || READING_LESSONS[0];
+  const groupedItems = lesson.items.reduce((groups, item, itemIndex) => {
+    const groupName = item.group || "O‘qish namunalari";
+    if (!groups[groupName]) groups[groupName] = [];
+    groups[groupName].push({ ...item, itemIndex });
+    return groups;
+  }, {});
   render(`
     <div class="reading-practice" style="--reading-accent:${lesson.accent}">
       <div class="reading-practice-head">
@@ -374,17 +408,28 @@ function readingLessonScreen(index) {
         <button id="continuousReading" class="mode-pill" type="button">Uzluksiz o‘qish</button>
         <button id="stopReading" class="mode-pill ghost" type="button">To‘xtatish</button>
       </div>
-      <div class="reading-word-grid">
-        ${lesson.items.map((item, itemIndex) => `
-          <button class="reading-word-card" data-item="${itemIndex}" type="button">
-            <span class="arabic">${item.word}</span>
-            <small>${item.transliteration}</small>
-            <em>MP3: ${item.audio}</em>
-          </button>
+      <div class="reading-flow">
+        ${Object.entries(groupedItems).map(([groupName, items]) => `
+          <section class="reading-group">
+            <div class="reading-group-title">
+              <span></span>
+              <strong>${groupName}</strong>
+              <small>${items.length} ta namuna</small>
+            </div>
+            <div class="reading-word-grid">
+              ${items.map((item) => `
+                <button class="reading-word-card" style="--word-accent:${item.color || lesson.accent}" data-item="${item.itemIndex}" type="button">
+                  <span class="arabic">${item.word}</span>
+                  ${item.meaning ? `<b>${item.meaning}</b>` : ""}
+                  <i class="reading-play-mark">Tinglash</i>
+                </button>
+              `).join("")}
+            </div>
+          </section>
         `).join("")}
       </div>
       <div class="feedback-panel reading-note">
-        Hozir dizayn va tizim tayyor. MP3 fayllar joylanganidan keyin shu kartalar avtomatik ovoz chiqaradi.
+        4-bosqich namunasida tarjimali so‘zlar ham, katta o‘qish mashqlari ham birga o‘qitiladi. Qolgan darslar ham keyin shu modelda to‘ldiriladi.
       </div>
     </div>
   `);
