@@ -84,13 +84,17 @@ function playEffect(type) {
 
 function updateChrome() {
   const advancedStage = window.ADVANCED_STAGES?.[state.mode];
-  const active = ["stage2", "stage3", "stage4", "stage5", "stage6"].includes(state.mode) || Boolean(advancedStage) || (state.step > 0 && state.step < totalSteps);
+  const active = ["stage2", "stage3", "stage4", "stage5", "stage6", "reading"].includes(state.mode) || Boolean(advancedStage) || (state.step > 0 && state.step < totalSteps);
   progressWrap.classList.toggle("hidden", !active);
   homeButton.classList.toggle("hidden", state.mode === "stage1" && state.step === 0);
   if (advancedStage) {
     stageLabel.textContent = `Fonetika · ${advancedStage.number}-bosqich`;
     progressLabel.textContent = `${Math.min(state.step + 1, 11)} / 11 BO‘LIM · ${advancedStage.activities} TOPSHIRIQ`;
     progressBar.style.width = `${Math.min(100, ((state.step + 1) / 11) * 100)}%`;
+  } else if (state.mode === "reading") {
+    stageLabel.textContent = "Fonetika · O‘qish mashqlari";
+    progressLabel.textContent = `${READING_LESSONS.length} DARS · SO‘ZMA-SO‘Z VA UZLUKSIZ REJIM`;
+    progressBar.style.width = "100%";
   } else if (state.mode === "stage2") {
     stageLabel.textContent = "Fonetika · 2-bosqich";
     progressLabel.textContent = `${Math.min(state.step + 1, stage2Sections)} / ${stage2Sections} BO‘LIM · ${stage2Activities} TOPSHIRIQ`;
@@ -170,6 +174,7 @@ function next() {
 }
 
 function goHome() {
+  stopReadingPlayback();
   state.mode = "stage1";
   state.step = 0;
   renderStep();
@@ -184,6 +189,228 @@ function resetProgress(mode) {
   state.streak = 0;
   state.mistakes = {};
   state.completed.clear();
+}
+
+const READING_LESSONS = [
+  {
+    id: "stage-2",
+    title: "2-bosqich: Alif · Vov · Ya · Ba",
+    accent: "#0f858a",
+    items: [
+      ["اَ", "a"], ["اُو", "uu"], ["اِي", "ii"], ["بَ", "ba"],
+      ["بَا", "baa"], ["بِي", "bii"], ["بُو", "buu"], ["اَبْ", "ab"],
+    ],
+  },
+  {
+    id: "stage-3",
+    title: "3-bosqich: Tashdid · Madd · Hamza",
+    accent: "#8a5ba8",
+    items: [
+      ["آ", "aa"], ["ءَ", "a"], ["أَ", "a"], ["إِ", "i"],
+      ["بَّ", "bba"], ["بُّ", "bbu"], ["بِّي", "bbii"], ["ءَا", "aa"],
+    ],
+  },
+  {
+    id: "stage-4",
+    title: "4-bosqich: Ta · Sa",
+    accent: "#b96b41",
+    items: [["تُوتٌ", "tutun"], ["بَيْتٌ", "baytun"], ["ثَابِتٌ", "thaabitun"], ["إِثْبَاتٌ", "ithbaatun"]],
+  },
+  {
+    id: "stage-5",
+    title: "5-bosqich: Ha · Jim · Xo",
+    accent: "#25847e",
+    items: [["أَخٌ", "akhun"], ["أَجَابَ", "ajaaba"], ["تَحْتَ", "tahta"], ["أُخْتٌ", "ukhtun"]],
+  },
+  {
+    id: "stage-6",
+    title: "6-bosqich: Dal · Zal",
+    accent: "#b77736",
+    items: [["ذُبَابٌ", "zubaabun"], ["أَخَذَ", "akhaza"], ["أَدَبٌ", "adabun"], ["أَحَدٌ", "ahadun"]],
+  },
+  {
+    id: "stage-7",
+    title: "7-bosqich: Ro · Za",
+    accent: "#c77a39",
+    items: [["خَبَرٌ", "khabarun"], ["رِيحٌ", "riihun"], ["خُبْزٌ", "khubzun"], ["أَرُزٌّ", "aruzzun"]],
+  },
+  {
+    id: "stage-8",
+    title: "8-bosqich: Sin · Shin",
+    accent: "#0f8a73",
+    items: [["دَرْسٌ", "darsun"], ["سِتٌّ", "sittun"], ["بَشَرٌ", "basharun"], ["شَرِبَ", "shariba"]],
+  },
+  {
+    id: "stage-9",
+    title: "9-bosqich: Sod · Dod",
+    accent: "#a05b34",
+    items: [["أَرْضٌ", "ardun"], ["ضَرَبَ", "daraba"], ["صَبْرٌ", "sabrun"], ["بَصِيرٌ", "basiirun"]],
+  },
+  {
+    id: "stage-10",
+    title: "10-bosqich: To · Zo",
+    accent: "#936237",
+    items: [["خَطَرٌ", "khatarun"], ["نَظَرَ", "nazara"], ["طَبِيبٌ", "tabiibun"], ["صِرَاطٌ", "siraatun"]],
+  },
+  {
+    id: "stage-11",
+    title: "11-bosqich: Ayn · G‘oyn",
+    accent: "#7352a1",
+    items: [["غُرَابٌ", "ghuraabun"], ["صَغِيرٌ", "saghiirun"], ["عَبْدٌ", "abdun"], ["عِنَبٌ", "inabun"]],
+  },
+  {
+    id: "stage-12",
+    title: "12-bosqich: Fa · Qof",
+    accent: "#397e85",
+    items: [["سَفَرٌ", "safarun"], ["فَقِيرٌ", "faqiirun"], ["قَامُوسٌ", "qaamuusun"], ["قَفَصٌ", "qafasun"]],
+  },
+  {
+    id: "stage-13",
+    title: "13-bosqich: Kaf · Lam",
+    accent: "#557f43",
+    items: [["كَلْبٌ", "kalbun"], ["كِتَابٌ", "kitaabun"], ["لَبَنٌ", "labanun"], ["لَيْلٌ", "laylun"]],
+  },
+  {
+    id: "stage-14",
+    title: "14-bosqich: Mim · Nun",
+    accent: "#b26976",
+    items: [["مَكْتَبٌ", "maktabun"], ["بِنْتٌ", "bintun"], ["بَنْكٌ", "bankun"], ["مَنْزِلٌ", "manzilun"]],
+  },
+  {
+    id: "stage-15",
+    title: "15-bosqich: Ha · Hamza",
+    accent: "#b58a39",
+    items: [["هُوَ", "huwa"], ["هِيَ", "hiya"], ["هُمْ", "hum"], ["هُنَّ", "hunna"]],
+  },
+].map((lesson) => ({
+  ...lesson,
+  items: lesson.items.map(([word, transliteration], index) => ({
+    word,
+    transliteration,
+    audio: `assets/reading/${lesson.id}/word-${String(index + 1).padStart(2, "0")}.mp3`,
+  })),
+}));
+
+const readingPlayer = { audio: null, stop: null };
+
+function stopReadingPlayback() {
+  if (readingPlayer.stop) readingPlayer.stop();
+  readingPlayer.stop = null;
+  if (readingPlayer.audio) {
+    readingPlayer.audio.pause();
+    readingPlayer.audio.currentTime = 0;
+  }
+  document.querySelectorAll(".reading-word-card.active").forEach((card) => card.classList.remove("active"));
+  document.querySelector("#continuousReading")?.classList.remove("playing");
+}
+
+function playReadingItem(item, card, onDone) {
+  stopReadingPlayback();
+  card?.classList.add("active");
+  const audio = new Audio(item.audio);
+  readingPlayer.audio = audio;
+  let fallbackTimer = null;
+  const finish = () => {
+    card?.classList.remove("active");
+    if (readingPlayer.audio === audio) readingPlayer.audio = null;
+    onDone?.();
+  };
+  audio.addEventListener("ended", finish, { once: true });
+  audio.addEventListener("error", () => {
+    showToast("Bu so‘z audio fayli keyingi bosqichda ulanadi.");
+    fallbackTimer = setTimeout(finish, 850);
+  }, { once: true });
+  readingPlayer.stop = () => {
+    clearTimeout(fallbackTimer);
+    audio.pause();
+    card?.classList.remove("active");
+  };
+  audio.play().catch(() => {
+    showToast("Audio fayl hali joylanmagan. Animatsiya rejimi ishlayapti.");
+    fallbackTimer = setTimeout(finish, 850);
+  });
+}
+
+function readingHubScreen() {
+  render(`
+    <div class="reading-hub">
+      <div class="reading-hub-head">
+        <div>
+          <p class="eyebrow">Audio kutubxona</p>
+          <h1>O‘qish mashqlari</h1>
+          <p class="lead">So‘zma-so‘z tinglash va uzluksiz o‘qish rejimi. Audiolar ElevenLabs orqali oldindan MP3 qilib joylanadi.</p>
+        </div>
+        <div class="reading-equalizer" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="reading-lesson-grid">
+        ${READING_LESSONS.map((lesson, index) => `
+          <button class="reading-lesson-card" style="--reading-accent:${lesson.accent}" data-reading="${index}" type="button">
+            <span>${index + 2}</span>
+            <strong>${lesson.title}</strong>
+            <small>${lesson.items.length} ta o‘qish namunasi · 2 rejim</small>
+          </button>
+        `).join("")}
+      </div>
+    </div>
+  `);
+
+  document.querySelectorAll(".reading-lesson-card").forEach((button) => {
+    button.addEventListener("click", () => readingLessonScreen(Number(button.dataset.reading)));
+  });
+}
+
+function readingLessonScreen(index) {
+  const lesson = READING_LESSONS[index] || READING_LESSONS[0];
+  render(`
+    <div class="reading-practice" style="--reading-accent:${lesson.accent}">
+      <div class="reading-practice-head">
+        <button id="readingBack" class="secondary-button" type="button">← O‘qish mashqlari</button>
+        <p class="eyebrow">${lesson.title}</p>
+        <h1>So‘zlarni tingla, ko‘z bilan kuzat, keyin o‘zing o‘qi</h1>
+        <p class="lead">Bitta so‘z ustiga bossangiz faqat shu so‘z o‘qiladi. “Uzluksiz” rejimida barcha so‘zlar ketma-ket jonlanadi.</p>
+      </div>
+      <div class="reading-mode-panel">
+        <button id="wordMode" class="mode-pill active" type="button">So‘zma-so‘z</button>
+        <button id="continuousReading" class="mode-pill" type="button">Uzluksiz o‘qish</button>
+        <button id="stopReading" class="mode-pill ghost" type="button">To‘xtatish</button>
+      </div>
+      <div class="reading-word-grid">
+        ${lesson.items.map((item, itemIndex) => `
+          <button class="reading-word-card" data-item="${itemIndex}" type="button">
+            <span class="arabic">${item.word}</span>
+            <small>${item.transliteration}</small>
+            <em>MP3: ${item.audio}</em>
+          </button>
+        `).join("")}
+      </div>
+      <div class="feedback-panel reading-note">
+        Hozir dizayn va tizim tayyor. MP3 fayllar joylanganidan keyin shu kartalar avtomatik ovoz chiqaradi.
+      </div>
+    </div>
+  `);
+
+  document.querySelector("#readingBack").addEventListener("click", readingHubScreen);
+  document.querySelector("#stopReading").addEventListener("click", stopReadingPlayback);
+  document.querySelectorAll(".reading-word-card").forEach((card) => {
+    card.addEventListener("click", () => playReadingItem(lesson.items[Number(card.dataset.item)], card));
+  });
+  document.querySelector("#continuousReading").addEventListener("click", () => {
+    const cards = [...document.querySelectorAll(".reading-word-card")];
+    let position = 0;
+    document.querySelector("#continuousReading").classList.add("playing");
+    const playNext = () => {
+      if (position >= lesson.items.length) {
+        stopReadingPlayback();
+        showToast("Uzluksiz o‘qish yakunlandi.");
+        return;
+      }
+      playReadingItem(lesson.items[position], cards[position], () => {
+        position += 1;
+        setTimeout(playNext, 220);
+      });
+    };
+    playNext();
+  });
 }
 
 function bindNext(id = "nextButton") {
@@ -206,6 +433,14 @@ function heroScreen() {
         </div>
         </div>
       </div>
+
+      <button id="readingHubButton" class="reading-entry-card" type="button">
+        <span>▶</span>
+        <div>
+          <strong>O‘qish mashqlari</strong>
+          <small>So‘zma-so‘z va uzluksiz tinglash rejimi</small>
+        </div>
+      </button>
 
       <div class="contents-grid">
         <button id="startButton" class="contents-card featured" type="button">
@@ -257,6 +492,11 @@ function heroScreen() {
     </div>
   `);
 
+  document.querySelector("#readingHubButton").addEventListener("click", () => {
+    state.mode = "reading";
+    stopReadingPlayback();
+    readingHubScreen();
+  });
   document.querySelector("#startButton").addEventListener("click", next);
   document.querySelector("#stage2Button").addEventListener("click", () => {
     resetProgress("stage2");
@@ -2265,6 +2505,10 @@ function resultScreen() {
 }
 
 function renderStep() {
+  if (state.mode === "reading") {
+    readingHubScreen();
+    return;
+  }
   if (window.ADVANCED_STAGES?.[state.mode]) {
     renderAdvancedStage();
     return;
@@ -2311,12 +2555,16 @@ effectButton.addEventListener("click", () => {
 });
 
 const advancedRoute = location.hash.match(/^#stage(7|8|9|10|11|12|13|14|15)(?:-(\d+))?$/);
+const readingRoute = location.hash.match(/^#reading$/);
 const stage6Route = location.hash.match(/^#stage6(?:-(\d+))?$/);
 const stage5Route = location.hash.match(/^#stage5(?:-(\d+))?$/);
 const stage4Route = location.hash.match(/^#stage4(?:-(\d+))?$/);
 const stage3Route = location.hash.match(/^#stage3(?:-(\d+))?$/);
 const stage2Route = location.hash.match(/^#stage2(?:-(\d+))?$/);
-if (advancedRoute) {
+if (readingRoute) {
+  state.mode = "reading";
+  state.step = 0;
+} else if (advancedRoute) {
   state.mode = `stage${advancedRoute[1]}`;
   state.step = Math.min(Number(advancedRoute[2] || 0), 10);
 } else if (stage6Route) {
