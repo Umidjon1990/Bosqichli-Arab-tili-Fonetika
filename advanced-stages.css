@@ -322,12 +322,12 @@
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
   gap:14px;
-  direction:ltr;
+  direction:rtl;
 }
 .reading-flow {
   display:grid;
   gap:24px;
-  direction:ltr;
+  direction:rtl;
 }
 .reading-group {
   position:relative;
@@ -338,6 +338,8 @@
   gap:10px;
   margin:0 0 12px;
   color:#0b5260;
+  direction:ltr;
+  justify-content:flex-start;
 }
 .reading-group-title span {
   width:34px;
@@ -370,6 +372,7 @@
     radial-gradient(circle at center,color-mix(in srgb,var(--word-accent) 18%,transparent),transparent 58%);
   box-shadow:0 14px 32px rgba(18,71,79,.09);
   cursor:pointer;
+  direction:rtl;
   transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;
 }
 .reading-word-card:nth-child(4n+1){translate:0 0}

@@ -428,9 +428,6 @@ function readingLessonScreen(index) {
           </section>
         `).join("")}
       </div>
-      <div class="feedback-panel reading-note">
-        4-bosqich namunasida tarjimali so‘zlar ham, katta o‘qish mashqlari ham birga o‘qitiladi. Qolgan darslar ham keyin shu modelda to‘ldiriladi.
-      </div>
     </div>
   `);
 
